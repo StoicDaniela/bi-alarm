@@ -8,6 +8,25 @@
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#56A4B1">
     <link rel="apple-touch-icon" href="icon-192.png">
+    <style>
+        /* Inline critical CSS to ensure loading */
+        body { 
+            margin: 0; 
+            padding: 0; 
+            background: linear-gradient(135deg, #1a1f2e 0%, #2d3748 100%);
+            color: #e2e8f0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+        }
+        .loading-placeholder {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+            color: #56A4B1;
+            font-size: 18px;
+        }
+    </style>
 </head>
 <body>
     <!-- Header -->
@@ -54,26 +73,26 @@
             <section class="recent-alerts">
                 <h2>Последни Известия</h2>
                 <div class="alert-list" id="alertList">
-                    <div class="alert-item critical">
+                    <div class="alert-item critical" onclick="showAnomalyDetails('sales')">
                         <div class="alert-icon">🔴</div>
                         <div class="alert-content">
                             <h4>Общи Продажби</h4>
                             <p>Спад с 18% спрямо вчера</p>
                             <span class="alert-time">Преди 2 часа</span>
                         </div>
-                        <button class="alert-action" onclick="showAnomalyDetails('sales')">
+                        <button class="alert-action">
                             <span>→</span>
                         </button>
                     </div>
                     
-                    <div class="alert-item warning">
+                    <div class="alert-item warning" onclick="showAnomalyDetails('basket')">
                         <div class="alert-icon">🟡</div>
                         <div class="alert-content">
                             <h4>Средна Стойност Кошница</h4>
                             <p>Покачване с 12% спрямо миналата седмица</p>
                             <span class="alert-time">Преди 5 часа</span>
                         </div>
-                        <button class="alert-action" onclick="showAnomalyDetails('basket')">
+                        <button class="alert-action">
                             <span>→</span>
                         </button>
                     </div>
@@ -109,7 +128,9 @@
                         <button class="suggestion-btn" onclick="selectMetric('Марж %')">Марж %</button>
                         <button class="suggestion-btn" onclick="selectMetric('Брой Клиенти')">Брой Клиенти</button>
                     </div>
-                    <button class="next-btn" onclick="nextStep(2)">Напред</button>
+                    <div class="form-actions">
+                        <button class="next-btn" onclick="nextStep(2)">Напред</button>
+                    </div>
                 </div>
 
                 <div class="form-step" id="step2">
@@ -212,6 +233,9 @@
                 <h3>Движение за последните 7 дни</h3>
                 <div class="chart-container">
                     <canvas id="anomalyChart" width="350" height="200"></canvas>
+                    <div id="chartFallback" class="loading-placeholder" style="display: none;">
+                        📈 Зареждане на графика...
+                    </div>
                 </div>
             </section>
 
@@ -231,4 +255,24 @@
         </div>
     </div>
 
+    <!-- Loading indicator -->
+    <div id="loadingIndicator" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #56A4B1; font-size: 18px;">
+        ⏳ Зареждане...
+    </div>
+
     <script src="app.js"></script>
+    <script>
+        // Fallback for chart loading
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() {
+                const canvas = document.getElementById('anomalyChart');
+                const fallback = document.getElementById('chartFallback');
+                if (canvas && !canvas.getContext) {
+                    canvas.style.display = 'none';
+                    fallback.style.display = 'block';
+                }
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
