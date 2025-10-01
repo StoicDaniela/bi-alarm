@@ -1,12 +1,12 @@
 {
   "name": "BI Аларма за Аномалии",
   "short_name": "BI Аларма",
-  "description": "Проактивни известия при неочаквани промени в бизнес данните",
+  "description": "Приложение за мониторинг и анализ на бизнес аномалии",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#1a1f2e",
+  "background_color": "#ffffff",
   "theme_color": "#56A4B1",
-  "orientation": "portrait",
+  "orientation": "portrait-primary",
   "scope": "./",
   "lang": "bg",
   "icons": [
@@ -23,12 +23,6 @@
       "purpose": "any maskable"
     }
   ],
-  "categories": ["business", "productivity", "analytics"],
-  "screenshots": [
-    {
-      "src": "screenshot1.png",
-      "sizes": "390x844",
-      "type": "image/png"
-    }
-  ]
+  "categories": ["business", "productivity", "utilities"],
+  "screenshots": []
 }
