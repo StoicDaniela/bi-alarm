@@ -9,270 +9,1009 @@
     <meta name="theme-color" content="#56A4B1">
     <link rel="apple-touch-icon" href="icon-192.png">
     <style>
-        /* Inline critical CSS to ensure loading */
-        body { 
-            margin: 0; 
-            padding: 0; 
-            background: linear-gradient(135deg, #1a1f2e 0%, #2d3748 100%);
-            color: #e2e8f0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            min-height: 100vh;
+        /* Enhanced BI Аларма за Аномалии - Inline Styles */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --primary-color: #56A4B1;
+            --secondary-color: #7BC0C9;
+            --accent-color: #A8E6CF;
+            --background-light: #F8FDFF;
+            --background-dark: #0F1419;
+            --text-primary: #2C3E50;
+            --text-secondary: #7F8C8D;
+            --success-color: #2ECC71;
+            --warning-color: #F39C12;
+            --danger-color: #E74C3C;
+            --info-color: #3498DB;
+            --border-color: #E1E8ED;
+            --shadow-light: 0 2px 10px rgba(86, 164, 177, 0.1);
+            --shadow-medium: 0 8px 25px rgba(86, 164, 177, 0.15);
+            --shadow-heavy: 0 15px 35px rgba(86, 164, 177, 0.2);
+            --transition-fast: 0.2s ease;
+            --transition-medium: 0.3s ease;
+            --border-radius-small: 8px;
+            --border-radius-medium: 12px;
+            --border-radius-large: 16px;
         }
-        .loading-placeholder {
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--background-light) 0%, #E8F4F8 100%);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .app-container {
+            min-height: 100vh;
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            box-shadow: var(--shadow-medium);
+            position: relative;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 1rem 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: shimmer 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes shimmer {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(180deg); }
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
-            height: 200px;
-            color: #56A4B1;
-            font-size: 18px;
+        }
+
+        .app-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .alert-indicator {
+            background: rgba(231, 76, 60, 0.9);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.05); }
+        }
+
+        /* Navigation */
+        .nav-bar {
+            background: var(--background-light);
+            border-bottom: 2px solid var(--border-color);
+            padding: 0.5rem 1.5rem;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .nav-btn {
+            background: transparent;
+            border: 2px solid transparent;
+            padding: 0.7rem 1.2rem;
+            border-radius: var(--border-radius-medium);
+            cursor: pointer;
+            transition: all var(--transition-medium);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+        }
+
+        .nav-btn:hover, .nav-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-light);
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 2rem 1.5rem;
+            min-height: calc(100vh - 140px);
+        }
+
+        .screen {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, white 0%, #F8FDFF 100%);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-large);
+            padding: 1.5rem;
+            text-align: center;
+            transition: all var(--transition-medium);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(86, 164, 177, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .stat-card:hover::before {
+            left: 100%;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-heavy);
+            border-color: var(--primary-color);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        /* Notifications */
+        .notifications {
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .notification-card {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-medium);
+            padding: 1.2rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all var(--transition-medium);
+            cursor: pointer;
+        }
+
+        .notification-card:hover {
+            box-shadow: var(--shadow-medium);
+            transform: translateX(5px);
+            border-color: var(--primary-color);
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .status-critical { background: var(--danger-color); }
+        .status-warning { background: var(--warning-color); }
+        .status-normal { background: var(--success-color); }
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .notification-title {
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+
+        .notification-desc {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .notification-time {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            white-space: nowrap;
+        }
+
+        .notification-arrow {
+            color: var(--primary-color);
+            font-size: 1.2rem;
+            transition: transform var(--transition-fast);
+        }
+
+        .notification-card:hover .notification-arrow {
+            transform: translateX(5px);
+        }
+
+        /* Form Elements */
+        .form-container {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-large);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-light);
+        }
+
+        .form-step {
+            margin-bottom: 2rem;
+        }
+
+        .step-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .step-number {
+            background: var(--primary-color);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid var(--border-color);
+            border-radius: var(--border-radius-small);
+            font-size: 1rem;
+            transition: all var(--transition-fast);
+            background: white;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(86, 164, 177, 0.1);
+        }
+
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 0.8rem;
+            border: 2px solid var(--border-color);
+            border-radius: var(--border-radius-small);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .radio-option:hover {
+            border-color: var(--primary-color);
+            background: rgba(86, 164, 177, 0.05);
+        }
+
+        .radio-option.selected {
+            border-color: var(--primary-color);
+            background: rgba(86, 164, 177, 0.1);
+        }
+
+        .radio-input {
+            margin: 0;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: var(--border-radius-small);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-medium);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-success {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .btn-warning {
+            background: var(--warning-color);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+        }
+
+        /* Existing Alarms */
+        .alarm-item {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-medium);
+            padding: 1.2rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .alarm-info {
+            flex: 1;
+        }
+
+        .alarm-metric {
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+
+        .alarm-condition {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .alarm-status {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .alarm-status.active {
+            background: rgba(46, 204, 113, 0.1);
+            color: var(--success-color);
+        }
+
+        .alarm-control {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: all var(--transition-fast);
+        }
+
+        .alarm-control:hover {
+            background: var(--border-color);
+        }
+
+        /* Chart Container */
+        .chart-container {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-medium);
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            min-height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chart-loading {
+            color: var(--text-secondary);
+            font-style: italic;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Detail Page */
+        .detail-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-badge.critical {
+            background: rgba(231, 76, 60, 0.1);
+            color: var(--danger-color);
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .detail-card {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-medium);
+            padding: 1.5rem;
+        }
+
+        .detail-title {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.8rem;
+            padding-bottom: 0.8rem;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .detail-item:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .detail-value {
+            color: var(--text-primary);
+        }
+
+        /* Notes Section */
+        .notes-container {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-medium);
+            padding: 1.5rem;
+        }
+
+        .note-item {
+            background: #f8f9fa;
+            border-left: 4px solid var(--primary-color);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 0 var(--border-radius-small) var(--border-radius-small) 0;
+        }
+
+        .note-content {
+            margin-bottom: 0.5rem;
+            font-style: italic;
+        }
+
+        .note-meta {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        /* Loading State */
+        .loading {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+        }
+
+        .loading::after {
+            content: '';
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid var(--border-color);
+            border-top: 2px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .app-container {
+                margin: 0;
+                box-shadow: none;
+            }
+
+            .header {
+                padding: 1rem;
+            }
+
+            .app-title {
+                font-size: 1.4rem;
+            }
+
+            .nav-bar {
+                padding: 0.5rem 1rem;
+                flex-wrap: wrap;
+            }
+
+            .nav-btn {
+                padding: 0.5rem 0.8rem;
+                font-size: 0.9rem;
+            }
+
+            .main-content {
+                padding: 1rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .form-container {
+                padding: 1.5rem;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .alarm-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+
+            .notification-card {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+        }
+
+        /* Additional animations */
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .notification-card {
+            animation: slideInRight 0.3s ease-out;
+        }
+
+        .notification-card:nth-child(2) { animation-delay: 0.1s; }
+        .notification-card:nth-child(3) { animation-delay: 0.2s; }
+        .notification-card:nth-child(4) { animation-delay: 0.3s; }
+
+        /* Hover effects for interactive elements */
+        .stat-card, .notification-card, .alarm-item {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::after, .notification-card::after, .alarm-item::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(86, 164, 177, 0.1) 0%, transparent 70%);
+            transition: all 0.3s ease;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+
+        .stat-card:hover::after, .notification-card:hover::after, .alarm-item:hover::after {
+            width: 300px;
+            height: 300px;
         }
     </style>
 </head>
 <body>
-    <!-- Header -->
-    <header class="header">
-        <div class="header-content">
-            <h1>🚨 BI Аларма</h1>
-            <div class="status-indicator" id="statusIndicator">
-                <span class="status-text" id="statusText">Всичко е нормално</span>
-                <div class="status-dot normal" id="statusDot"></div>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1 class="app-title">
+                    🚨 BI Аларма за Аномалии
+                </h1>
+                <div class="alert-indicator">
+                    Има предупреждения (1)
+                </div>
             </div>
-        </div>
-    </header>
+        </header>
 
-    <!-- Navigation -->
-    <nav class="bottom-nav">
-        <button class="nav-btn active" onclick="showScreen('dashboard')">
-            <span class="nav-icon">📊</span>
-            <span class="nav-text">Dashboard</span>
-        </button>
-        <button class="nav-btn" onclick="showScreen('alerts')">
-            <span class="nav-icon">⚙️</span>
-            <span class="nav-text">Аларми</span>
-        </button>
-        <button class="nav-btn" onclick="showScreen('details')">
-            <span class="nav-icon">📈</span>
-            <span class="nav-text">Детайли</span>
-        </button>
-    </nav>
+        <!-- Navigation -->
+        <nav class="nav-bar">
+            <button class="nav-btn active" data-screen="dashboard">
+                📊 Dashboard
+            </button>
+            <button class="nav-btn" data-screen="alarms">
+                ⚙️ Аларми
+            </button>
+            <button class="nav-btn" data-screen="details">
+                📈 Детайли
+            </button>
+        </nav>
 
-    <!-- Dashboard Screen -->
-    <div class="screen active" id="dashboard">
-        <div class="container">
-            <section class="quick-stats">
-                <div class="stat-card">
-                    <h3>Активни Аларми</h3>
-                    <span class="stat-number" id="activeAlarms">2</span>
-                </div>
-                <div class="stat-card">
-                    <h3>Проверени Днес</h3>
-                    <span class="stat-number">47</span>
-                </div>
-            </section>
-
-            <section class="recent-alerts">
-                <h2>Последни Известия</h2>
-                <div class="alert-list" id="alertList">
-                    <div class="alert-item critical" onclick="showAnomalyDetails('sales')">
-                        <div class="alert-icon">🔴</div>
-                        <div class="alert-content">
-                            <h4>Общи Продажби</h4>
-                            <p>Спад с 18% спрямо вчера</p>
-                            <span class="alert-time">Преди 2 часа</span>
-                        </div>
-                        <button class="alert-action">
-                            <span>→</span>
-                        </button>
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard Screen -->
+            <div id="dashboard" class="screen active">
+                <!-- Stats -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value">2</div>
+                        <div class="stat-label">Активни Аларми</div>
                     </div>
+                    <div class="stat-card">
+                        <div class="stat-value">47</div>
+                        <div class="stat-label">Проверени Днес</div>
+                    </div>
+                </div>
+
+                <!-- Notifications -->
+                <section class="notifications">
+                    <h2 class="section-title">📢 Последни Известия</h2>
                     
-                    <div class="alert-item warning" onclick="showAnomalyDetails('basket')">
-                        <div class="alert-icon">🟡</div>
-                        <div class="alert-content">
-                            <h4>Средна Стойност Кошница</h4>
-                            <p>Покачване с 12% спрямо миналата седмица</p>
-                            <span class="alert-time">Преди 5 часа</span>
+                    <div class="notification-card" onclick="showDetails('general-sales')">
+                        <div class="status-indicator status-critical"></div>
+                        <div class="notification-content">
+                            <div class="notification-title">Общи Продажби</div>
+                            <div class="notification-desc">Спад с 18% спрямо вчера</div>
                         </div>
-                        <button class="alert-action">
-                            <span>→</span>
-                        </button>
+                        <div class="notification-time">Преди 2 часа</div>
+                        <div class="notification-arrow">→</div>
                     </div>
+
+                    <div class="notification-card">
+                        <div class="status-indicator status-warning"></div>
+                        <div class="notification-content">
+                            <div class="notification-title">Средна Стойност Кошница</div>
+                            <div class="notification-desc">Покачване с 12% спрямо миналата седмица</div>
+                        </div>
+                        <div class="notification-time">Преди 5 часа</div>
+                        <div class="notification-arrow">→</div>
+                    </div>
+
+                    <div class="notification-card">
+                        <div class="status-indicator status-normal"></div>
+                        <div class="notification-content">
+                            <div class="notification-title">Брой Клиенти</div>
+                            <div class="notification-desc">В норма - без отклонения</div>
+                        </div>
+                        <div class="notification-time">Преди 1 час</div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Alarms Screen -->
+            <div id="alarms" class="screen">
+                <!-- Create New Alarm -->
+                <section class="form-container">
+                    <h2 class="section-title">➕ Създаване на Нова Аларма</h2>
                     
-                    <div class="alert-item normal">
-                        <div class="alert-icon">🟢</div>
-                        <div class="alert-content">
-                            <h4>Брой Клиенти</h4>
-                            <p>В норма - без отклонения</p>
-                            <span class="alert-time">Преди 1 час</span>
+                    <form id="alarm-form">
+                        <div class="form-step">
+                            <div class="step-title">
+                                <span class="step-number">1</span>
+                                Избор на Метрика
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Име на Метрика</label>
+                                <div class="radio-group">
+                                    <label class="radio-option">
+                                        <input type="radio" name="metric" value="sales" class="radio-input">
+                                        Общи Продажби
+                                    </label>
+                                    <label class="radio-option">
+                                        <input type="radio" name="metric" value="basket" class="radio-input">
+                                        Средна Стойност Кошница
+                                    </label>
+                                    <label class="radio-option">
+                                        <input type="radio" name="metric" value="margin" class="radio-input">
+                                        Марж %
+                                    </label>
+                                    <label class="radio-option">
+                                        <input type="radio" name="metric" value="customers" class="radio-input">
+                                        Брой Клиенти
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-actions">
+                                <button type="button" class="btn btn-primary" onclick="nextStep()">Напред</button>
+                            </div>
                         </div>
-                    </div>
-                </div>
-            </section>
-        </div>
-    </div>
 
-    <!-- Alerts Setup Screen -->
-    <div class="screen" id="alerts">
-        <div class="container">
-            <section class="form-section">
-                <h2>Създаване на Нова Аларма</h2>
-                
-                <div class="form-step active" id="step1">
-                    <h3>Стъпка 1: Избор на Метрика</h3>
-                    <div class="input-group">
-                        <label for="metricName">Име на Метрика</label>
-                        <input type="text" id="metricName" placeholder="Общи Продажби, Марж, Клиенти...">
-                    </div>
-                    <div class="metric-suggestions">
-                        <button class="suggestion-btn" onclick="selectMetric('Общи Продажби')">Общи Продажби</button>
-                        <button class="suggestion-btn" onclick="selectMetric('Средна Стойност Кошница')">Средна Стойност Кошница</button>
-                        <button class="suggestion-btn" onclick="selectMetric('Марж %')">Марж %</button>
-                        <button class="suggestion-btn" onclick="selectMetric('Брой Клиенти')">Брой Клиенти</button>
-                    </div>
-                    <div class="form-actions">
-                        <button class="next-btn" onclick="nextStep(2)">Напред</button>
-                    </div>
-                </div>
-
-                <div class="form-step" id="step2">
-                    <h3>Стъпка 2: Дефиниране на Праг</h3>
-                    <div class="input-group">
-                        <label for="thresholdType">Тип Отклонение</label>
-                        <select id="thresholdType">
-                            <option value="percentage">Процентно изменение</option>
-                            <option value="absolute">Абсолютна стойност</option>
-                        </select>
-                    </div>
-                    <div class="input-group">
-                        <label for="thresholdValue">Стойност</label>
-                        <input type="number" id="thresholdValue" placeholder="15">
-                    </div>
-                    <div class="input-group">
-                        <label for="comparisonPeriod">Сравнение спрямо</label>
-                        <select id="comparisonPeriod">
-                            <option value="yesterday">Вчера</option>
-                            <option value="lastWeek">Миналата седмица</option>
-                            <option value="lastMonth">Миналия месец</option>
-                        </select>
-                    </div>
-                    <div class="form-actions">
-                        <button class="back-btn" onclick="prevStep(1)">Назад</button>
-                        <button class="next-btn" onclick="nextStep(3)">Напред</button>
-                    </div>
-                </div>
-
-                <div class="form-step" id="step3">
-                    <h3>Стъпка 3: Интеграция</h3>
-                    <div class="input-group">
-                        <label for="apiKey">API Ключ или Източник</label>
-                        <input type="text" id="apiKey" placeholder="demo_key_12345">
-                    </div>
-                    <div class="input-group">
-                        <label for="notificationMethod">Метод за Известяване</label>
-                        <select id="notificationMethod">
-                            <option value="push">Push Известие</option>
-                            <option value="email">Email</option>
-                            <option value="both">И двете</option>
-                        </select>
-                    </div>
-                    <div class="form-actions">
-                        <button class="back-btn" onclick="prevStep(2)">Назад</button>
-                        <button class="create-btn" onclick="createAlert()">Създай Аларма</button>
-                    </div>
-                </div>
-            </section>
-
-            <section class="existing-alerts">
-                <h2>Съществуващи Аларми</h2>
-                <div class="alert-list" id="existingAlerts">
-                    <div class="alert-config">
-                        <div class="config-content">
-                            <h4>Общи Продажби</h4>
-                            <p>Спад > 15% спрямо вчера</p>
-                            <span class="config-status active">Активна</span>
+                        <div class="form-step" style="display: none;">
+                            <div class="step-title">
+                                <span class="step-number">2</span>
+                                Дефиниране на Праг
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Тип Отклонение</label>
+                                <div class="radio-group">
+                                    <label class="radio-option">
+                                        <input type="radio" name="deviation-type" value="percentage" class="radio-input">
+                                        Процентно изменение
+                                    </label>
+                                    <label class="radio-option">
+                                        <input type="radio" name="deviation-type" value="absolute" class="radio-input">
+                                        Абсолютна стойност
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Стойност</label>
+                                <input type="number" class="form-input" placeholder="Въведете стойност">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Сравнение спрямо</label>
+                                <div class="radio-group">
+                                    <label class="radio-option">
+                                        <input type="radio" name="comparison" value="yesterday" class="radio-input">
+                                        Вчера
+                                    </label>
+                                    <label class="radio-option">
+                                        <input type="radio" name="comparison" value="last-week" class="radio-input">
+                                        Миналата седмица
+                                    </label>
+                                    <label class="radio-option">
+                                        <input type="radio" name="comparison" value="last-month" class="radio-input">
+                                        Миналия месец
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-actions">
+                                <button type="button" class="btn btn-secondary" onclick="prevStep()">Назад</button>
+                                <button type="button" class="btn btn-primary" onclick="nextStep()">Напред</button>
+                            </div>
                         </div>
-                        <button class="toggle-btn" onclick="toggleAlert(this)">⏸️</button>
-                    </div>
+
+                        <div class="form-step" style="display: none;">
+                            <div class="step-title">
+                                <span class="step-number">3</span>
+                                Интеграция
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">API Ключ или Източник</label>
+                                <input type="text" class="form-input" placeholder="Въведете API ключ">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Метод за Известяване</label>
+                                <div class="radio-group">
+                                    <label class="radio-option">
+                                        <input type="radio" name="notification" value="push" class="radio-input">
+                                        Push Известие
+                                    </label>
+                                    <label class="radio-option">
+                                        <input type="radio" name="notification" value="email" class="radio-input">
+                                        Email
+                                    </label>
+                                    <label class="radio-option">
+                                        <input type="radio" name="notification" value="both" class="radio-input">
+                                        И двете
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-actions">
+                                <button type="button" class="btn btn-secondary" onclick="prevStep()">Назад</button>
+                                <button type="submit" class="btn btn-success">🎯 Създай Аларма</button>
+                            </div>
+                        </div>
+                    </form>
+                </section>
+
+                <!-- Existing Alarms -->
+                <section>
+                    <h2 class="section-title">📋 Съществуващи Аларми</h2>
                     
-                    <div class="alert-config">
-                        <div class="config-content">
-                            <h4>Средна Стойност Кошница</h4>
-                            <p>Промяна > 10% спрямо миналата седмица</p>
-                            <span class="config-status active">Активна</span>
+                    <div class="alarm-item">
+                        <div class="alarm-info">
+                            <div class="alarm-metric">Общи Продажби</div>
+                            <div class="alarm-condition">Спад > 15% спрямо вчера</div>
                         </div>
-                        <button class="toggle-btn" onclick="toggleAlert(this)">⏸️</button>
+                        <div class="alarm-status active">Активна</div>
+                        <button class="alarm-control" title="Пауза">⏸️</button>
+                    </div>
+
+                    <div class="alarm-item">
+                        <div class="alarm-info">
+                            <div class="alarm-metric">Средна Стойност Кошница</div>
+                            <div class="alarm-condition">Промяна > 10% спрямо миналата седмица</div>
+                        </div>
+                        <div class="alarm-status active">Активна</div>
+                        <button class="alarm-control" title="Пауза">⏸️</button>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Details Screen -->
+            <div id="details" class="screen">
+                <div class="detail-header">
+                    <h1>Общи Продажби - Аномалия</h1>
+                    <div class="status-badge critical">
+                        🔴 Критично
                     </div>
                 </div>
-            </section>
-        </div>
-    </div>
 
-    <!-- Anomaly Details Screen -->
-    <div class="screen" id="details">
-        <div class="container">
-            <section class="anomaly-header">
-                <h2 id="anomalyTitle">Общи Продажби - Аномалия</h2>
-                <div class="anomaly-severity critical">
-                    <span class="severity-icon">🔴</span>
-                    <span class="severity-text">Критично</span>
-                </div>
-            </section>
-
-            <section class="anomaly-summary">
-                <div class="summary-card">
-                    <h3>Детайли на Нарушението</h3>
-                    <div class="summary-content">
-                        <p><strong>Метрика:</strong> <span id="detailMetric">Общи Продажби</span></p>
-                        <p><strong>Праг:</strong> <span id="detailThreshold">Спад с повече от 15% спрямо вчера</span></p>
-                        <p><strong>Актуална стойност:</strong> <span id="detailValue" class="critical-value">-18%</span></p>
-                        <p><strong>Време на засичане:</strong> <span id="detailTime">2025-10-02 10:30</span></p>
+                <div class="detail-grid">
+                    <div class="detail-card">
+                        <h3 class="detail-title">Детайли на Нарушението</h3>
+                        <div class="detail-item">
+                            <span class="detail-label">Метрика:</span>
+                            <span class="detail-value">Общи Продажби</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Праг:</span>
+                            <span class="detail-value">Спад с повече от 15% спрямо вчера</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Актуална стойност:</span>
+                            <span class="detail-value">-18%</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Време на засичане:</span>
+                            <span class="detail-value">2025-10-02 10:30</span>
+                        </div>
                     </div>
                 </div>
-            </section>
 
-            <section class="chart-section">
-                <h3>Движение за последните 7 дни</h3>
                 <div class="chart-container">
-                    <canvas id="anomalyChart" width="350" height="200"></canvas>
-                    <div id="chartFallback" class="loading-placeholder" style="display: none;">
-                        📈 Зареждане на графика...
+                    <div class="chart-loading">
+                        ⏳ Зареждане на графика...
                     </div>
+                    <canvas id="anomaly-chart" width="800" height="400" style="display: none;"></canvas>
                 </div>
-            </section>
 
-            <section class="notes-section">
-                <h3>Забележки и Хипотези</h3>
                 <div class="notes-container">
-                    <textarea id="notesField" placeholder="Добавете вашата хипотеза или коментар за тази аномалия..."></textarea>
-                    <button class="save-notes-btn" onclick="saveNotes()">💾 Запази Забележка</button>
-                </div>
-                <div class="saved-notes" id="savedNotes">
+                    <h3 class="detail-title">Забележки и Хипотези</h3>
+                    <div class="form-actions" style="margin-bottom: 1rem;">
+                        <button class="btn btn-primary">💾 Запази Забележка</button>
+                    </div>
                     <div class="note-item">
-                        <p>"Възможно влияние от промоционалната кампания, която приключи вчера"</p>
-                        <span class="note-time">Преди 1 час</span>
+                        <div class="note-content">
+                            "Възможно влияние от промоционалната кампания, която приключи вчера"
+                        </div>
+                        <div class="note-meta">Преди 1 час</div>
+                    </div>
+                    <div class="loading">
+                        Зареждане...
                     </div>
                 </div>
-            </section>
-        </div>
-    </div>
-
-    <!-- Loading indicator -->
-    <div id="loadingIndicator" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #56A4B1; font-size: 18px;">
-        ⏳ Зареждане...
+            </div>
+        </main>
     </div>
 
     <script src="app.js"></script>
-    <script>
-        // Fallback for chart loading
-        document.addEventListener('DOMContentLoaded', function() {
-            setTimeout(function() {
-                const canvas = document.getElementById('anomalyChart');
-                const fallback = document.getElementById('chartFallback');
-                if (canvas && !canvas.getContext) {
-                    canvas.style.display = 'none';
-                    fallback.style.display = 'block';
-                }
-            }, 1000);
-        });
-    </script>
 </body>
 </html>
