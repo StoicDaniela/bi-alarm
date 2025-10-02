@@ -429,17 +429,146 @@ function deleteAlert(id) {
     }
 }
 
-// Enhanced logout function with proper redirect
+// Enhanced logout function with beautiful modal and real logout
 function logout() {
-    const confirmation = confirm('Сигурни ли сте, че искате да излезете от системата?');
-    if (confirmation) {
-        // Clear any sensitive data from memory (optional)
-        console.log('Изход от системата...');
-        
-        // Redirect to login page or reload to show login
-        // Since we don't have a separate login page, we'll redirect to the GitHub pages URL
-        // You can modify this to redirect to a specific login page if you create one
-        window.location.href = window.location.href;
+    showLogoutModal();
+}
+
+function showLogoutModal() {
+    // Create beautiful logout modal
+    const modal = document.createElement('div');
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10000;
+        animation: fadeIn 0.3s ease;
+    `;
+    
+    modal.innerHTML = `
+        <div style="
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            min-width: 300px;
+            animation: slideIn 0.3s ease;
+        ">
+            <div style="font-size: 48px; margin-bottom: 20px;">🚪</div>
+            <h3 style="color: #2c3e50; margin-bottom: 10px;">Изход от системата</h3>
+            <p style="color: #666; margin-bottom: 30px;">
+                Сигурни ли сте, че искате да излезете?<br>
+                <small>Всички несъхранени данни ще бъдат запазени автоматично.</small>
+            </p>
+            <div style="display: flex; gap: 15px; justify-content: center;">
+                <button onclick="confirmLogout()" style="
+                    background: linear-gradient(45deg, #0D8BB1, #0A7396);
+                    color: white;
+                    border: none;
+                    padding: 12px 24px;
+                    border-radius: 25px;
+                    cursor: pointer;
+                    font-weight: 600;
+                    transition: all 0.3s ease;
+                ">✅ Да, излез</button>
+                <button onclick="cancelLogout()" style="
+                    background: #6c757d;
+                    color: white;
+                    border: none;
+                    padding: 12px 24px;
+                    border-radius: 25px;
+                    cursor: pointer;
+                    font-weight: 600;
+                    transition: all 0.3s ease;
+                ">❌ Отказ</button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Add animations
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+function confirmLogout() {
+    // Save current state
+    localStorage.setItem('biSystemLoggedOut', 'true');
+    localStorage.setItem('biSystemLogoutTime', new Date().toISOString());
+    
+    // Clear session data (but keep stored data)
+    sessionStorage.clear();
+    
+    // Show logout message and redirect
+    document.body.innerHTML = `
+        <div style="
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        ">
+            <div style="
+                background: white;
+                padding: 40px;
+                border-radius: 20px;
+                text-align: center;
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+                max-width: 400px;
+            ">
+                <div style="font-size: 64px; margin-bottom: 20px;">👋</div>
+                <h2 style="color: #2c3e50; margin-bottom: 15px;">Довиждане!</h2>
+                <p style="color: #666; margin-bottom: 30px;">
+                    Успешно излязохте от BI системата.<br>
+                    Всичките ви данни са запазени.
+                </p>
+                <button onclick="location.reload()" style="
+                    background: linear-gradient(45deg, #0D8BB1, #0A7396);
+                    color: white;
+                    border: none;
+                    padding: 15px 30px;
+                    border-radius: 25px;
+                    cursor: pointer;
+                    font-weight: 600;
+                    font-size: 16px;
+                    transition: all 0.3s ease;
+                ">
+                    🔑 Влез отново
+                </button>
+                <br><br>
+                <small style="color: #999;">
+                    Време на изход: ${new Date().toLocaleString('bg-BG')}
+                </small>
+            </div>
+        </div>
+    `;
+}
+
+function cancelLogout() {
+    // Remove modal
+    const modal = document.querySelector('div[style*="position: fixed"]');
+    if (modal) {
+        modal.style.animation = 'fadeOut 0.3s ease';
+        setTimeout(() => modal.remove(), 300);
     }
 }
 
