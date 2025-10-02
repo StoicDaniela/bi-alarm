@@ -486,3 +486,53 @@ window.getCurrentUser = function() {
 
 // Експорт на функция за проверка на права
 window.hasPermission = hasPermission;
+
+
+// ВРЕМЕНЕН АДМИН БУТОН - ЛЕСНО РЕШЕНИЕ
+function createAdminButton() {
+    // Премахни стар админ бутон ако има
+    const oldBtn = document.getElementById('tempAdminBtn');
+    if (oldBtn) oldBtn.remove();
+    
+    // Създай нов админ бутон
+    const adminBtn = document.createElement('button');
+    adminBtn.id = 'tempAdminBtn';
+    adminBtn.innerHTML = '👑 АДМИН ПАНЕЛ';
+    adminBtn.style.cssText = `
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        background: #ff6b6b;
+        color: white;
+        border: none;
+        padding: 15px 20px;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        z-index: 9999;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    `;
+    
+    // Добави click събитие
+    adminBtn.onclick = function() {
+        showAdminPanel();
+    };
+    
+    // Добави към страницата
+    document.body.appendChild(adminBtn);
+    
+    console.log('Temporary admin button created!');
+}
+
+// Обновена showMainApp функция
+const originalShowMainApp = showMainApp;
+showMainApp = function() {
+    originalShowMainApp();
+    
+    // Ако потребителят е администратор, покажи админ бутона
+    if (currentUser && currentUser.role === 'Администратор') {
+        setTimeout(createAdminButton, 500); // Малко забавяне за сигурност
+        console.log('Admin button should appear for:', currentUser.name);
+    }
+};
