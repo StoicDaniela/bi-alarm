@@ -1,5 +1,4 @@
 // auth.js - Система за автентикация и управление на потребители
-
 // Симулирана база данни с потребители
 const users = [
     {
@@ -66,7 +65,7 @@ function checkAutoLogin() {
 
 // Настройка на event listeners
 function setupAuthEventListeners() {
-    // Toggle между Login и Register
+    // Toggle between Login и Register
     document.getElementById('showRegister').addEventListener('click', function(e) {
         e.preventDefault();
         toggleAuthForms();
@@ -76,14 +75,14 @@ function setupAuthEventListeners() {
         e.preventDefault();
         toggleAuthForms();
     });
-
+    
     // Enter key за форми
     document.getElementById('loginForm').addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
             login();
         }
     });
-
+    
     document.getElementById('registerForm').addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
             register();
@@ -119,25 +118,41 @@ function login() {
         return;
     }
     
-    // Търсене на потребител
-    const user = users.find(u => u.email === email && u.password === password);
+    // ВАЖНО: Търсене на потребител със строга проверка
+    const user = users.find(u => 
+        u.email.toLowerCase() === email.toLowerCase() && 
+        u.password === password
+    );
     
     if (user) {
-        // Успешен вход
-        currentUser = user;
+        // Успешен вход - ПРИНУДИТЕЛНО запазваме оригиналните данни
+        currentUser = {
+            id: user.id,
+            email: user.email,
+            password: user.password,
+            name: user.name,
+            role: user.role,  // Това е ключовото - запазваме точната роля
+            company: user.company,
+            joinDate: user.joinDate,
+            lastLogin: new Date().toISOString().slice(0, 16).replace('T', ' ')
+        };
         
-        // Обновяване на последен вход
-        user.lastLogin = new Date().toISOString().slice(0, 16).replace('T', ' ');
+        // Обновяване на последен вход в оригиналния масив
+        user.lastLogin = currentUser.lastLogin;
         
-        // Запазване в localStorage
+        // ВАЖНО: Принудително изчистване на localStorage преди запазване
+        localStorage.removeItem('currentUser');
         localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        
+        // Debug информация в конзолата
+        console.log('Login successful for:', currentUser);
+        console.log('User role:', currentUser.role);
         
         // Показване на основното приложение
         showMainApp();
         
         // Успешно съобщение
-        showSuccessMessage(`Добре дошли, ${user.name}!`);
-        
+        showSuccessMessage(`Добре дошли, ${user.name}! Роля: ${user.role}`);
     } else {
         showAuthError('Грешен имейл или парола!');
     }
@@ -167,7 +182,7 @@ function register() {
     }
     
     // Проверка дали имейлът съществува
-    if (users.find(u => u.email === email)) {
+    if (users.find(u => u.email.toLowerCase() === email.toLowerCase())) {
         showAuthError('Потребител с този имейл вече съществува!');
         return;
     }
@@ -193,7 +208,6 @@ function register() {
     
     // Показване на основното приложение
     showMainApp();
-    
     showSuccessMessage(`Регистрацията е успешна! Добре дошли, ${newUser.name}!`);
 }
 
@@ -233,6 +247,7 @@ function showMainApp() {
 // Обновяване на потребителски данни в header
 function updateUserInfo() {
     if (currentUser) {
+        console.log('Updating user info:', currentUser); // Debug
         document.getElementById('userEmail').textContent = currentUser.email;
         document.getElementById('userRole').textContent = currentUser.role;
     }
@@ -243,12 +258,17 @@ function updateAdminAccess() {
     const adminNavBtn = document.getElementById('adminNavBtn');
     const adminPanel = document.getElementById('adminPanel');
     
+    console.log('Checking admin access for role:', currentUser?.role); // Debug
+    
     if (currentUser && currentUser.role === 'Администратор') {
-        adminNavBtn.style.display = 'block';
+        console.log('User is administrator - showing admin panel'); // Debug
+        if (adminNavBtn) adminNavBtn.style.display = 'block';
     } else {
-        adminNavBtn.style.display = 'none';
+        console.log('User is not administrator - hiding admin panel'); // Debug
+        if (adminNavBtn) adminNavBtn.style.display = 'none';
+        
         // Скриване на админ панела ако не е администратор
-        if (adminPanel.style.display === 'block') {
+        if (adminPanel && adminPanel.style.display === 'block') {
             showScreen('dashboard');
         }
     }
@@ -264,11 +284,13 @@ function showAdminPanel() {
     // Скриване на всички други екрани
     const screens = ['dashboard', 'alerts', 'analysis', 'settings'];
     screens.forEach(screen => {
-        document.getElementById(screen).style.display = 'none';
+        const element = document.getElementById(screen);
+        if (element) element.style.display = 'none';
     });
     
     // Показване на админ панел
-    document.getElementById('adminPanel').style.display = 'block';
+    const adminPanel = document.getElementById('adminPanel');
+    if (adminPanel) adminPanel.style.display = 'block';
     
     // Зареждане на потребителите
     loadUsersTable();
@@ -280,6 +302,8 @@ function showAdminPanel() {
 // Зареждане на таблица с потребители
 function loadUsersTable() {
     const tbody = document.querySelector('#usersTable tbody');
+    if (!tbody) return;
+    
     tbody.innerHTML = '';
     
     users.forEach(user => {
@@ -288,13 +312,15 @@ function loadUsersTable() {
             <td>${user.id}</td>
             <td>${user.name}</td>
             <td>${user.email}</td>
-            <td><span class="role-badge role-${user.role.toLowerCase()}">${user.role}</span></td>
+            <td>${user.role}</td>
             <td>${user.company}</td>
             <td>${user.joinDate}</td>
             <td>${user.lastLogin}</td>
             <td>
-                <button onclick="editUser(${user.id})" class="btn-sm">Редакция</button>
-                ${user.id !== 1 ? `<button onclick="deleteUser(${user.id})" class="btn-sm btn-danger">Изтрий</button>` : ''}
+                ${user.id !== 1 ? `
+                    <button onclick="editUser(${user.id})" class="btn btn-sm">Редактирай</button>
+                    <button onclick="deleteUser(${user.id})" class="btn btn-sm btn-danger">Изтрий</button>
+                ` : ''}
             </td>
         `;
         tbody.appendChild(row);
@@ -364,24 +390,32 @@ function updateActiveNavigation(activeScreen) {
 // Показване на грешка при автентикация
 function showAuthError(message) {
     const errorDiv = document.getElementById('authError');
-    errorDiv.textContent = message;
-    errorDiv.style.display = 'block';
-    
-    // Автоматично скриване след 5 секунди
-    setTimeout(() => {
-        errorDiv.style.display = 'none';
-    }, 5000);
+    if (errorDiv) {
+        errorDiv.textContent = message;
+        errorDiv.style.display = 'block';
+        
+        // Автоматично скриване след 5 секунди
+        setTimeout(() => {
+            errorDiv.style.display = 'none';
+        }, 5000);
+    }
 }
 
 // Изчистване на грешки при автентикация
 function clearAuthErrors() {
-    document.getElementById('authError').style.display = 'none';
+    const errorDiv = document.getElementById('authError');
+    if (errorDiv) {
+        errorDiv.style.display = 'none';
+    }
 }
 
 // Изчистване на формулари за автентикация
 function clearAuthForms() {
-    document.getElementById('loginForm').reset();
-    document.getElementById('registerForm').reset();
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    
+    if (loginForm) loginForm.reset();
+    if (registerForm) registerForm.reset();
 }
 
 // Показване на съобщение за успех
