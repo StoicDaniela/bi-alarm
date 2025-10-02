@@ -28,7 +28,31 @@
             padding: 0;
             box-sizing: border-box;
         }
-
+    <script src="auth.js"></script>
+    <script src="app.js"></script>
+    
+    <script>
+    // Принудителен fix за показване на приложението
+    window.showMainApp = function() {
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('mainApp').style.display = 'block';
+        
+        const currentUser = window.getCurrentUser();
+        if (currentUser) {
+            document.getElementById('userEmail').textContent = currentUser.email;
+            document.getElementById('userRole').textContent = currentUser.role;
+            
+            if (currentUser.role === 'Администратор') {
+                document.getElementById('adminNavBtn').style.display = 'block';
+            }
+        }
+        
+        setTimeout(() => showScreen('dashboard'), 100);
+    };
+    </script>
+</body>
+</html>
+    
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
