@@ -1,924 +1,1055 @@
+code
+preview
 <!DOCTYPE html>
 <html lang="bg">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BI Аларма за Аномалии</title>
-    
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#56A4B1">
-    <link rel="apple-touch-icon" href="icon-192.png">
+    <title>BI Аларма за Аномалии - Professional Edition</title>
     <style>
-        /* Enhanced BI Аларма за Аномалии - Inline Styles */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        :root {
-            --primary-color: #56A4B1;
-            --secondary-color: #7BC0C9;
-            --accent-color: #A8E6CF;
-            --background-light: #F8FDFF;
-            --background-dark: #0F1419;
-            --text-primary: #2C3E50;
-            --text-secondary: #7F8C8D;
-            --success-color: #2ECC71;
-            --warning-color: #F39C12;
-            --danger-color: #E74C3C;
-            --info-color: #3498DB;
-            --border-color: #E1E8ED;
-            --shadow-light: 0 2px 10px rgba(86, 164, 177, 0.1);
-            --shadow-medium: 0 8px 25px rgba(86, 164, 177, 0.15);
-            --shadow-heavy: 0 15px 35px rgba(86, 164, 177, 0.2);
-            --transition-fast: 0.2s ease;
-            --transition-medium: 0.3s ease;
-            --border-radius-small: 8px;
-            --border-radius-medium: 12px;
-            --border-radius-large: 16px;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, var(--background-light) 0%, #E8F4F8 100%);
-            color: var(--text-primary);
-            line-height: 1.6;
-            overflow-x: hidden;
-        }
-
-        .app-container {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            box-shadow: var(--shadow-medium);
+            color: #333;
+        }
+
+        /* Login Screen Styles */
+        .login-container {
             display: flex;
-            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
         }
 
-        /* Header */
-        .header {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-            color: white;
-            padding: 1.5rem;
+        .login-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            max-width: 450px;
+            width: 100%;
             text-align: center;
-            position: relative;
-            overflow: hidden;
         }
 
-        .header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
-            animation: shimmer 3s ease-in-out infinite;
+        .login-logo {
+            font-size: 3rem;
+            margin-bottom: 10px;
         }
 
-        @keyframes shimmer {
-            0%, 100% { transform: translate(-50%, -50%) rotate(0deg); }
-            50% { transform: translate(-50%, -50%) rotate(180deg); }
-        }
-
-        .header h1 {
+        .login-title {
             font-size: 1.8rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-            position: relative;
-            z-index: 2;
+            color: #333;
+            margin-bottom: 10px;
+            font-weight: 600;
         }
 
-        .status-bar {
+        .login-subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 0.9rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.2);
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-google {
+            background: white;
+            border: 2px solid #e0e0e0;
+            color: #333;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 0.5rem;
+            gap: 10px;
+        }
+
+        .btn-google:hover {
+            background: #f8f9fa;
+            border-color: #667eea;
+        }
+
+        .divider {
+            margin: 25px 0;
             position: relative;
-            z-index: 2;
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            animation: pulse 2s infinite;
-        }
-
-        .status-dot.normal { background-color: var(--success-color); }
-        .status-dot.warning { background-color: var(--warning-color); }
-        .status-dot.critical { background-color: var(--danger-color); animation: pulse 1s infinite; }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        /* Navigation */
-        .navigation {
-            display: flex;
-            background: var(--background-light);
-            border-top: 1px solid var(--border-color);
-            padding: 0.5rem;
-        }
-
-        .nav-btn {
-            flex: 1;
-            padding: 1rem;
-            background: transparent;
-            border: none;
             text-align: center;
-            cursor: pointer;
-            border-radius: var(--border-radius-small);
-            transition: var(--transition-medium);
+            color: #999;
+        }
+
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #e0e0e0;
+        }
+
+        .divider span {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 0 15px;
+        }
+
+        .switch-form {
+            margin-top: 20px;
+            color: #666;
+        }
+
+        .switch-form a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .switch-form a:hover {
+            text-decoration: underline;
+        }
+
+        /* Main App Styles (previous styles) */
+        .app-container {
+            display: none;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
             display: flex;
-            flex-direction: column;
+            justify-content: space-between;
             align-items: center;
-            gap: 0.25rem;
+        }
+
+        .header-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-email {
+            color: #666;
             font-size: 0.9rem;
-            color: var(--text-secondary);
         }
 
-        .nav-btn:hover {
-            background: rgba(86, 164, 177, 0.1);
-            color: var(--primary-color);
-            transform: translateY(-2px);
-        }
-
-        .nav-btn.active {
-            background: var(--primary-color);
+        .user-role {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            box-shadow: var(--shadow-light);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
         }
 
-        .nav-btn .icon {
-            font-size: 1.5rem;
-            margin-bottom: 0.25rem;
+        .logout-btn {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
         }
 
-        /* Main Content */
-        .main-content {
-            flex: 1;
-            padding: 1.5rem;
-            overflow-y: auto;
+        .logout-btn:hover {
+            background: #ff5252;
+            transform: translateY(-1px);
         }
 
         .screen {
             display: none;
-            animation: fadeIn 0.3s ease;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         }
 
         .screen.active {
             display: block;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        .screen-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        /* Dashboard */
-        .section {
-            margin-bottom: 2rem;
-        }
-
-        .section-title {
-            font-size: 1.3rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            color: var(--text-primary);
-            border-left: 4px solid var(--primary-color);
-            padding-left: 1rem;
-        }
-
-        .notifications {
+        .alert-summary {
             display: grid;
-            gap: 1rem;
-            margin-bottom: 2rem;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .summary-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .summary-card h3 {
+            font-size: 2rem;
+            margin-bottom: 5px;
+        }
+
+        .summary-card p {
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+
+        .notifications-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
         }
 
         .notification-card {
             background: white;
-            border-radius: var(--border-radius-medium);
-            box-shadow: var(--shadow-light);
-            padding: 1.5rem;
-            border-left: 4px solid var(--primary-color);
-            transition: var(--transition-medium);
+            border-left: 5px solid;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
             cursor: pointer;
-            position: relative;
-            overflow: hidden;
+            transition: all 0.3s ease;
         }
 
         .notification-card:hover {
             transform: translateY(-2px);
-            box-shadow: var(--shadow-medium);
-        }
-
-        .notification-card.warning {
-            border-left-color: var(--warning-color);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
         }
 
         .notification-card.critical {
-            border-left-color: var(--danger-color);
-            animation: subtle-glow 3s ease-in-out infinite;
+            border-left-color: #ff6b6b;
         }
 
-        @keyframes subtle-glow {
-            0%, 100% { box-shadow: var(--shadow-light); }
-            50% { box-shadow: 0 8px 25px rgba(231, 76, 60, 0.2); }
+        .notification-card.warning {
+            border-left-color: #feca57;
         }
 
-        .notification-header {
+        .notification-card.normal {
+            border-left-color: #48dbfb;
+        }
+
+        .notification-content {
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 0.5rem;
+            align-items: center;
         }
 
-        .notification-title {
-            font-weight: 600;
-            color: var(--text-primary);
+        .notification-info h4 {
             font-size: 1.1rem;
+            margin-bottom: 5px;
+            color: #333;
         }
 
-        .notification-badge {
-            background: rgba(231, 76, 60, 0.1);
-            color: var(--danger-color);
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 500;
-        }
-
-        .notification-badge.warning {
-            background: rgba(243, 156, 18, 0.1);
-            color: var(--warning-color);
-        }
-
-        .notification-value {
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: var(--danger-color);
-            margin: 0.5rem 0;
-        }
-
-        .notification-value.warning {
-            color: var(--warning-color);
-        }
-
-        .notification-value.positive {
-            color: var(--success-color);
+        .notification-info p {
+            color: #666;
+            font-size: 0.9rem;
         }
 
         .notification-meta {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-        }
-
-        .notification-arrow {
-            color: var(--primary-color);
-            font-weight: bold;
-            font-size: 1.2rem;
-        }
-
-        /* Buttons */
-        .btn {
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: var(--border-radius-small);
-            cursor: pointer;
-            font-size: 0.9rem;
-            font-weight: 500;
-            transition: var(--transition-fast);
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            text-decoration: none;
-        }
-
-        .btn:hover {
-            background: #4A92A0;
-            transform: translateY(-1px);
-            box-shadow: var(--shadow-light);
-        }
-
-        .btn-secondary {
-            background: var(--text-secondary);
-        }
-
-        .btn-secondary:hover {
-            background: #6C7B7D;
-        }
-
-        .btn-success {
-            background: var(--success-color);
-        }
-
-        .btn-success:hover {
-            background: #27AE60;
-        }
-
-        .btn-small {
-            padding: 0.5rem 1rem;
+            text-align: right;
+            color: #999;
             font-size: 0.8rem;
         }
 
-        /* Alert Setup */
-        .setup-container {
-            background: white;
-            border-radius: var(--border-radius-medium);
-            box-shadow: var(--shadow-light);
-            overflow: hidden;
+        .notification-value {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
         }
 
-        .setup-header {
-            background: var(--primary-color);
-            color: white;
-            padding: 1.5rem;
-            text-align: center;
+        .critical .notification-value {
+            color: #ff6b6b;
         }
 
-        .setup-steps {
-            padding: 2rem;
+        .warning .notification-value {
+            color: #feca57;
         }
 
-        .step {
-            display: none;
+        .normal .notification-value {
+            color: #48dbfb;
         }
 
-        .step.active {
-            display: block;
-            animation: slideIn 0.3s ease;
+        .form-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
         }
 
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateX(20px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        .form-label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            color: var(--text-primary);
-        }
-
-        .form-input {
-            width: 100%;
-            padding: 0.75rem;
-            border: 2px solid var(--border-color);
-            border-radius: var(--border-radius-small);
-            font-size: 1rem;
-            transition: var(--transition-fast);
-        }
-
-        .form-input:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(86, 164, 177, 0.1);
-        }
-
-        .form-select {
-            width: 100%;
-            padding: 0.75rem;
-            border: 2px solid var(--border-color);
-            border-radius: var(--border-radius-small);
-            font-size: 1rem;
-            background: white;
-            cursor: pointer;
-        }
-
-        .suggestions {
+        .form-row {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 0.75rem;
-            margin-top: 1rem;
+            gap: 15px;
+            margin-bottom: 15px;
         }
 
-        .suggestion-btn {
-            padding: 1rem;
-            background: rgba(86, 164, 177, 0.1);
-            border: 2px solid transparent;
-            border-radius: var(--border-radius-small);
-            cursor: pointer;
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .metric-option {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 15px;
             text-align: center;
-            transition: var(--transition-fast);
-            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
         }
 
-        .suggestion-btn:hover {
-            background: rgba(86, 164, 177, 0.2);
-            border-color: var(--primary-color);
+        .metric-option:hover, .metric-option.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
         }
 
         .step-navigation {
             display: flex;
             justify-content: space-between;
-            margin-top: 2rem;
-            padding-top: 1.5rem;
-            border-top: 1px solid var(--border-color);
+            margin-top: 30px;
         }
 
-        /* Alarm Configurations */
-        .alarm-configs {
-            display: grid;
-            gap: 1rem;
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
         }
 
-        .alert-config {
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .alarms-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .alarm-item {
             background: white;
-            border-radius: var(--border-radius-medium);
-            box-shadow: var(--shadow-light);
-            padding: 1.5rem;
-            border-left: 4px solid var(--success-color);
-        }
-
-        .config-header {
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 1rem;
+            align-items: center;
         }
 
-        .config-title {
-            font-weight: 600;
-            font-size: 1.1rem;
-            color: var(--text-primary);
+        .alarm-info h4 {
+            color: #333;
+            margin-bottom: 5px;
         }
 
-        .config-description {
-            color: var(--text-secondary);
-            margin-bottom: 1rem;
+        .alarm-info p {
+            color: #666;
+            font-size: 0.9rem;
         }
 
-        .config-status {
-            background: rgba(74, 222, 128, 0.2);
-            color: #4ADE80;
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 500;
-        }
-
-        .config-status.inactive {
-            background: rgba(107, 114, 128, 0.2);
-            color: #6B7280;
+        .alarm-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .alarm-control {
             background: none;
             border: none;
-            font-size: 1.2rem;
+            font-size: 1.5rem;
             cursor: pointer;
-            padding: 0.25rem;
-            border-radius: 4px;
-            transition: var(--transition-fast);
+            padding: 5px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
         }
 
         .alarm-control:hover {
-            background: rgba(86, 164, 177, 0.1);
+            background: #f0f0f0;
         }
 
-        /* Details Screen */
-        .anomaly-details {
-            background: white;
-            border-radius: var(--border-radius-medium);
-            box-shadow: var(--shadow-light);
-            overflow: hidden;
-        }
-
-        .anomaly-header {
-            background: linear-gradient(135deg, var(--danger-color) 0%, #C0392B 100%);
+        .status-badge {
+            background: #48dbfb;
             color: white;
-            padding: 1.5rem;
-            text-align: center;
-        }
-
-        .anomaly-title {
-            font-size: 1.4rem;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
             font-weight: 600;
-            margin-bottom: 0.5rem;
         }
 
-        .anomaly-summary {
+        .details-card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .details-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            padding: 1.5rem;
-            background: var(--background-light);
+            gap: 20px;
+            margin-bottom: 20px;
         }
 
-        .summary-item {
+        .detail-item {
             text-align: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
         }
 
-        .summary-label {
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            color: var(--text-secondary);
-            margin-bottom: 0.5rem;
-            font-weight: 500;
+        .detail-item h4 {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
         }
 
-        .summary-value {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: var(--text-primary);
+        .detail-item .value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #333;
         }
 
-        .chart-container {
-            padding: 1.5rem;
-            text-align: center;
-        }
-
-        .chart-placeholder {
-            width: 100%;
-            height: 300px;
-            background: var(--background-light);
-            border-radius: var(--border-radius-small);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-secondary);
-            font-size: 1.1rem;
-            margin-bottom: 1rem;
-            position: relative;
-            overflow: hidden;
-        }
-
-        #anomalyChart {
-            width: 100%;
-            height: 100%;
-            border-radius: var(--border-radius-small);
+        .detail-item .critical {
+            color: #ff6b6b;
         }
 
         .notes-section {
-            padding: 1.5rem;
-            border-top: 1px solid var(--border-color);
+            margin-top: 20px;
         }
 
-        .notes-form {
-            margin-bottom: 1.5rem;
+        .notes-section h3 {
+            margin-bottom: 15px;
+            color: #333;
         }
 
-        .notes-input {
+        .notes-section textarea {
             width: 100%;
-            padding: 0.75rem;
-            border: 2px solid var(--border-color);
-            border-radius: var(--border-radius-small);
-            font-size: 1rem;
-            min-height: 80px;
-            resize: vertical;
+            min-height: 100px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
             font-family: inherit;
+            resize: vertical;
         }
 
-        .saved-notes {
-            display: grid;
-            gap: 1rem;
+        .notes-section textarea:focus {
+            outline: none;
+            border-color: #667eea;
         }
 
-        .note-item {
-            background: var(--background-light);
-            padding: 1rem;
-            border-radius: var(--border-radius-small);
-            border-left: 3px solid var(--primary-color);
+        .save-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.3s ease;
         }
 
-        .note-text {
-            font-style: italic;
-            margin-bottom: 0.5rem;
-            color: var(--text-primary);
+        .save-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
         }
 
-        .note-meta {
+        .navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-around;
+            padding: 15px 0;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
             font-size: 0.8rem;
-            color: var(--text-secondary);
+            color: #666;
+            transition: all 0.3s ease;
         }
 
-        /* Responsive Design */
+        .nav-btn.active, .nav-btn:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .nav-btn span:first-child {
+            font-size: 1.2rem;
+        }
+
+        /* Admin Panel Styles */
+        .admin-panel {
+            display: none;
+        }
+
+        .admin-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .admin-card {
+            background: linear-gradient(135deg, #ff6b6b 0%, #feca57 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .users-table {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .users-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .users-table th,
+        .users-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .users-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .role-select {
+            padding: 5px 10px;
+            border: 1px solid #e0e0e0;
+            border-radius: 5px;
+            background: white;
+        }
+
         @media (max-width: 768px) {
             .app-container {
-                min-height: 100vh;
+                padding: 10px;
             }
-
+            
             .header {
-                padding: 1rem;
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
             }
-
-            .header h1 {
-                font-size: 1.5rem;
+            
+            .user-info {
+                flex-direction: column;
+                gap: 10px;
             }
-
-            .main-content {
-                padding: 1rem;
+            
+            .navigation {
+                padding: 10px 0;
             }
-
-            .section-title {
-                font-size: 1.1rem;
-            }
-
+            
             .nav-btn {
-                padding: 0.75rem 0.5rem;
-                font-size: 0.8rem;
+                padding: 8px 10px;
+                font-size: 0.7rem;
             }
-
-            .nav-btn .icon {
-                font-size: 1.2rem;
+            
+            .login-card {
+                padding: 30px 20px;
             }
-
-            .suggestions {
-                grid-template-columns: 1fr;
-            }
-
-            .anomaly-summary {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* Loading Spinner */
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 2px solid rgba(86, 164, 177, 0.3);
-            border-radius: 50%;
-            border-top-color: var(--primary-color);
-            animation: spin 1s ease-in-out infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* Custom Scrollbar */
-        .main-content::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .main-content::-webkit-scrollbar-track {
-            background: var(--background-light);
-        }
-
-        .main-content::-webkit-scrollbar-thumb {
-            background: var(--primary-color);
-            border-radius: 3px;
-        }
-
-        .main-content::-webkit-scrollbar-thumb:hover {
-            background: #4A92A0;
-        }
-
-        /* Accessibility */
-        .sr-only {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            padding: 0;
-            margin: -1px;
-            overflow: hidden;
-            clip: rect(0, 0, 0, 0);
-            white-space: nowrap;
-            border: 0;
-        }
-
-        /* Focus styles for accessibility */
-        .nav-btn:focus,
-        .btn:focus,
-        .form-input:focus,
-        .form-select:focus {
-            outline: 2px solid var(--primary-color);
-            outline-offset: 2px;
         }
     </style>
 </head>
 <body>
-    <div class="app-container">
-        <!-- Header -->
-        <header class="header">
-            <h1>🔍 BI Аларма за Аномалии</h1>
-            <div class="status-bar">
-                <div id="statusDot" class="status-dot normal"></div>
-                <span id="statusText">Всичко е нормално</span>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-container">
+        <div class="login-card">
+            <div class="login-logo">🔐</div>
+            <h1 class="login-title">BI Аларма за Аномалии</h1>
+            <p class="login-subtitle">Professional Edition • Secure Access</p>
+            
+            <!-- Login Form -->
+            <div id="loginForm">
+                <div class="form-group">
+                    <label for="loginEmail">Email адрес</label>
+                    <input type="email" id="loginEmail" class="form-control" placeholder="потребител@email.com">
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Парола</label>
+                    <input type="password" id="loginPassword" class="form-control" placeholder="Въведете парола">
+                </div>
+                <button class="btn btn-primary" onclick="login()">🔓 Вход</button>
+                
+                <div class="divider">
+                    <span>или</span>
+                </div>
+                
+                <button class="btn btn-google" onclick="loginWithGoogle()">
+                    <span>🔍</span>
+                    Вход с Google
+                </button>
+                
+                <div class="switch-form">
+                    Нямате акаунт? <a href="#" onclick="showRegister()">Регистрация</a>
+                </div>
             </div>
-        </header>
-
-        <!-- Main Content -->
-        <main class="main-content">
-            <!-- Dashboard Screen -->
-            <div id="dashboard" class="screen active">
-                <section class="section">
-                    <h2 class="section-title">📢 Последни Известия</h2>
-                    <div class="notifications">
-                        <div class="notification-card critical" onclick="showAnomalyDetails('sales')">
-                            <div class="notification-header">
-                                <div class="notification-title">Общи Продажби</div>
-                                <div class="notification-badge">Критично</div>
-                            </div>
-                            <div class="notification-value">Спад с 18% спрямо вчера</div>
-                            <div class="notification-meta">
-                                <span>Преди 2 часа</span>
-                                <span class="notification-arrow">→</span>
-                            </div>
-                        </div>
-
-                        <div class="notification-card warning" onclick="showAnomalyDetails('basket')">
-                            <div class="notification-header">
-                                <div class="notification-title">Средна Стойност Кошница</div>
-                                <div class="notification-badge warning">Предупреждение</div>
-                            </div>
-                            <div class="notification-value warning">Покачване с 12% спрямо миналата седмица</div>
-                            <div class="notification-meta">
-                                <span>Преди 5 часа</span>
-                                <span class="notification-arrow">→</span>
-                            </div>
-                        </div>
-
-                        <div class="notification-card">
-                            <div class="notification-header">
-                                <div class="notification-title">Брой Клиенти</div>
-                                <div class="notification-badge" style="background: rgba(74, 222, 128, 0.2); color: #4ADE80;">Нормално</div>
-                            </div>
-                            <div class="notification-value positive">В норма - без отклонения</div>
-                            <div class="notification-meta">
-                                <span>Преди 1 час</span>
-                                <span class="notification-arrow">→</span>
-                            </div>
-                        </div>
-                    </div>
-                </section>
+            
+            <!-- Register Form -->
+            <div id="registerForm" style="display: none;">
+                <div class="form-group">
+                    <label for="registerName">Име и фамилия</label>
+                    <input type="text" id="registerName" class="form-control" placeholder="Вашето име">
+                </div>
+                <div class="form-group">
+                    <label for="registerEmail">Email адрес</label>
+                    <input type="email" id="registerEmail" class="form-control" placeholder="потребител@email.com">
+                </div>
+                <div class="form-group">
+                    <label for="registerPassword">Парола</label>
+                    <input type="password" id="registerPassword" class="form-control" placeholder="Въведете парола">
+                </div>
+                <div class="form-group">
+                    <label for="registerCompany">Компания</label>
+                    <input type="text" id="registerCompany" class="form-control" placeholder="Вашата компания">
+                </div>
+                <button class="btn btn-primary" onclick="register()">✨ Регистрация</button>
+                
+                <div class="switch-form">
+                    Имате акаунт? <a href="#" onclick="showLogin()">Вход</a>
+                </div>
             </div>
+        </div>
+    </div>
 
-            <!-- Alarms Screen -->
-            <div id="alarms" class="screen">
-                <section class="section">
-                    <h2 class="section-title">➕ Създаване на Нова Аларма</h2>
-                    <div class="setup-container">
-                        <div class="setup-header">
-                            <h3>Настройка на Аларма</h3>
-                        </div>
-                        <div class="setup-steps">
-                            <!-- Step 1: Choose Metric -->
-                            <div id="step1" class="step active">
-                                <div class="form-group">
-                                    <label class="form-label">Изберете метрика за наблюдение:</label>
-                                    <input type="text" id="metricName" class="form-input" placeholder="Въведете име на метрика...">
-                                </div>
-                                <div class="suggestions">
-                                    <div class="suggestion-btn" onclick="selectMetric('Общи Продажби')">📊 Общи Продажби</div>
-                                    <div class="suggestion-btn" onclick="selectMetric('Средна Стойност Кошница')">🛒 Средна Стойност Кошница</div>
-                                    <div class="suggestion-btn" onclick="selectMetric('Брой Клиенти')">👥 Брой Клиенти</div>
-                                    <div class="suggestion-btn" onclick="selectMetric('Време за Зареждане')">⏱️ Време за Зареждане</div>
-                                    <div class="suggestion-btn" onclick="selectMetric('Коефициент на Конверсия')">🎯 Коефициент на Конверсия</div>
-                                    <div class="suggestion-btn" onclick="selectMetric('Нови Регистрации')">📝 Нови Регистрации</div>
-                                </div>
-                                <div class="step-navigation">
-                                    <div></div>
-                                    <button type="button" class="btn btn-primary" onclick="nextStep(2)">Напред</button>
-                                </div>
-                            </div>
+    <!-- Main Application -->
+    <div id="mainApp" class="app-container">
+        <!-- Header with User Info -->
+        <div class="header">
+            <div class="header-title">
+                <span>🔔</span>
+                BI Аларма за Аномалии
+            </div>
+            <div class="user-info">
+                <span id="userEmail" class="user-email">потребител@email.com</span>
+                <span id="userRole" class="user-role">Потребител</span>
+                <button class="logout-btn" onclick="logout()">Изход</button>
+            </div>
+        </div>
 
-                            <!-- Step 2: Set Threshold -->
-                            <div id="step2" class="step">
-                                <div class="form-group">
-                                    <label class="form-label">Тип праг:</label>
-                                    <select id="thresholdType" class="form-select">
-                                        <option value="percentage">Процентна промяна</option>
-                                        <option value="absolute">Абсолютна стойност</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Стойност на прага:</label>
-                                    <input type="number" id="thresholdValue" class="form-input" placeholder="напр. 15" min="1" max="100">
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Период за сравнение:</label>
-                                    <select id="comparisonPeriod" class="form-select">
-                                        <option value="yesterday">Спрямо вчера</option>
-                                        <option value="lastWeek">Спрямо миналата седмица</option>
-                                        <option value="lastMonth">Спрямо миналия месец</option>
-                                    </select>
-                                </div>
-                                <div class="step-navigation">
-                                    <button type="button" class="btn btn-secondary" onclick="prevStep(1)">Назад</button>
-                                    <button type="button" class="btn btn-primary" onclick="nextStep(3)">Напред</button>
-                                </div>
-                            </div>
-
-                            <!-- Step 3: API Configuration -->
-                            <div id="step3" class="step">
-                                <div class="form-group">
-                                    <label class="form-label">API Ключ (по избор):</label>
-                                    <input type="password" id="apiKey" class="form-input" placeholder="Въведете API ключ за външна интеграция...">
-                                    <small style="color: var(--text-secondary); margin-top: 0.5rem; display: block;">
-                                        Ако не въведете API ключ, ще използваме симулирани данни
-                                    </small>
-                                </div>
-                                <div class="step-navigation">
-                                    <button type="button" class="btn btn-secondary" onclick="prevStep(2)">Назад</button>
-                                    <button type="button" class="btn btn-success" onclick="createAlert()">🎯 Създай Аларма</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <section class="section">
-                    <h2 class="section-title">📋 Съществуващи Аларми</h2>
-                    <div id="existingAlerts" class="alarm-configs">
-                        <div class="alert-config">
-                            <div class="config-header">
-                                <div class="config-title">Общи Продажби</div>
-                                <button class="alarm-control" onclick="toggleAlert(this)" title="Пауза">⏸️</button>
-                            </div>
-                            <div class="config-description">Спад > 15% спрямо вчера</div>
-                            <div class="config-status active">Активна</div>
-                        </div>
-
-                        <div class="alert-config">
-                            <div class="config-header">
-                                <div class="config-title">Средна Стойност Кошница</div>
-                                <button class="alarm-control" onclick="toggleAlert(this)" title="Пауза">⏸️</button>
-                            </div>
-                            <div class="config-description">Промяна > 10% спрямо миналата седмица</div>
-                            <div class="config-status active">Активна</div>
-                        </div>
-                    </div>
-                </section>
+        <!-- Dashboard Screen -->
+        <div id="dashboard" class="screen active">
+            <h2 class="screen-title">
+                <span>📊</span>
+                Табло за Управление
+            </h2>
+            
+            <div class="alert-summary">
+                <div class="summary-card">
+                    <h3>1</h3>
+                    <p>Активни Предупреждения</p>
+                </div>
+                <div class="summary-card">
+                    <h3>5</h3>
+                    <p>Наблюдавани Метрики</p>
+                </div>
+                <div class="summary-card">
+                    <h3>94%</h3>
+                    <p>Точност на Прогнозите</p>
+                </div>
             </div>
 
-            <!-- Details Screen -->
-            <div id="details" class="screen">
-                <div class="anomaly-details">
-                    <div class="anomaly-header">
-                        <h1 id="anomalyTitle" class="anomaly-title">Общи Продажби - Аномалия</h1>
-                    </div>
-
-                    <div class="anomaly-summary">
-                        <div class="summary-item">
-                            <div class="summary-label">Метрика</div>
-                            <div id="detailMetric" class="summary-value">Общи Продажби</div>
+            <h3>Последни Известия</h3>
+            <div class="notifications-list">
+                <div class="notification-card critical" onclick="showAnomalyDetails('sales')">
+                    <div class="notification-content">
+                        <div class="notification-info">
+                            <h4>Общи Продажби</h4>
+                            <p>Критично състояние детектирано</p>
                         </div>
-                        <div class="summary-item">
-                            <div class="summary-label">Праг</div>
-                            <div id="detailThreshold" class="summary-value">Спад с повече от 15% спрямо вчера</div>
-                        </div>
-                        <div class="summary-item">
-                            <div class="summary-label">Актуална стойност</div>
-                            <div id="detailValue" class="summary-value">-18%</div>
-                        </div>
-                        <div class="summary-item">
-                            <div class="summary-label">Време на засичане</div>
-                            <div id="detailTime" class="summary-value">2025-10-02 10:30</div>
+                        <div class="notification-meta">
+                            <div class="notification-value">-18%</div>
+                            <div>Спад спрямо вчера</div>
+                            <div>Преди 2 часа</div>
                         </div>
                     </div>
-
-                    <div class="chart-container">
-                        <div class="chart-placeholder">
-                            <canvas id="anomalyChart" width="800" height="300"></canvas>
+                </div>
+                
+                <div class="notification-card warning">
+                    <div class="notification-content">
+                        <div class="notification-info">
+                            <h4>Средна Стойност Кошница</h4>
+                            <p>Предупреждение за намаление</p>
+                        </div>
+                        <div class="notification-meta">
+                            <div class="notification-value">-8%</div>
+                            <div>Спад спрямо вчера</div>
+                            <div>Преди 5 часа</div>
                         </div>
                     </div>
-
-                    <div class="notes-section">
-                        <h3 style="margin-bottom: 1rem; color: var(--text-primary);">Забележки и Хипотези</h3>
-                        <div class="notes-form">
-                            <textarea id="notesField" class="notes-input" placeholder="Добавете забележка или хипотеза за аномалията..."></textarea>
-                            <button class="btn btn-primary" style="margin-top: 1rem;" onclick="saveNotes()">💾 Запази Забележка</button>
+                </div>
+                
+                <div class="notification-card normal">
+                    <div class="notification-content">
+                        <div class="notification-info">
+                            <h4>Брой Клиенти</h4>
+                            <p>Нормални стойности</p>
                         </div>
-                        <div id="savedNotes" class="saved-notes">
-                            <div class="note-item">
-                                <div class="note-text">"Възможно влияние от промоционалната кампания, която приключи вчера"</div>
-                                <div class="note-meta">Преди 1 час</div>
-                            </div>
+                        <div class="notification-meta">
+                            <div class="notification-value">+3%</div>
+                            <div>Растеж спрямо вчера</div>
+                            <div>Преди 1 час</div>
                         </div>
                     </div>
                 </div>
             </div>
-        </main>
+        </div>
 
-        <!-- Navigation -->
-        <nav class="navigation">
-            <button class="nav-btn active" onclick="showScreen('dashboard')">
-                <div class="icon">📊</div>
-                <div>Табло</div>
-            </button>
-            <button class="nav-btn" onclick="showScreen('alarms')">
-                <div class="icon">⚙️</div>
-                <div>Аларми (<span id="activeAlarms">2</span>)</div>
-            </button>
-            <button class="nav-btn" onclick="showScreen('details')">
-                <div class="icon">🔍</div>
-                <div>Детайли</div>
-            </button>
-        </nav>
+        <!-- Alerts Management Screen -->
+        <div id="alerts" class="screen">
+            <h2 class="screen-title">
+                <span>⚙️</span>
+                Управление на Аларми
+            </h2>
+
+            <!-- Create New Alert Steps -->
+            <div id="step1" class="form-section">
+                <h3>Стъпка 1: Изберете метрика за наблюдение</h3>
+                <div class="metric-grid">
+                    <div class="metric-option" onclick="selectMetric('sales', this)">
+                        <div>💰</div>
+                        <div>Общи Продажби</div>
+                    </div>
+                    <div class="metric-option" onclick="selectMetric('basket', this)">
+                        <div>🛒</div>
+                        <div>Средна Стойност Кошница</div>
+                    </div>
+                    <div class="metric-option" onclick="selectMetric('customers', this)">
+                        <div>👥</div>
+                        <div>Брой Клиенти</div>
+                    </div>
+                    <div class="metric-option" onclick="selectMetric('loading', this)">
+                        <div>⚡</div>
+                        <div>Време за Зареждане</div>
+                    </div>
+                    <div class="metric-option" onclick="selectMetric('conversion', this)">
+                        <div>📈</div>
+                        <div>Коефициент на Конверсия</div>
+                    </div>
+                    <div class="metric-option" onclick="selectMetric('registrations', this)">
+                        <div>✨</div>
+                        <div>Нови Регистрации</div>
+                    </div>
+                </div>
+                <div class="step-navigation">
+                    <div></div>
+                    <button type="button" class="btn btn-primary" onclick="nextStep(2)">Напред</button>
+                </div>
+            </div>
+
+            <div id="step2" class="form-section" style="display: none;">
+                <h3>Стъпка 2: Настройте праговете за аларма</h3>
+                <div class="form-row">
+                    <div>
+                        <label>Тип праг</label>
+                        <select class="form-control">
+                            <option>Процентна промяна</option>
+                            <option>Абсолютна стойност</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Стойност на прага</label>
+                        <input type="number" class="form-control" placeholder="15" value="15">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div>
+                        <label>Период за сравнение</label>
+                        <select class="form-control">
+                            <option>Спрямо вчера</option>
+                            <option>Спрямо миналата седмица</option>
+                            <option>Спрямо миналия месец</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="step-navigation">
+                    <button type="button" class="btn btn-secondary" onclick="prevStep(1)">Назад</button>
+                    <button type="button" class="btn btn-primary" onclick="nextStep(3)">Напред</button>
+                </div>
+            </div>
+
+            <div id="step3" class="form-section" style="display: none;">
+                <h3>Стъпка 3: API ключ и финализиране</h3>
+                <div class="form-row">
+                    <div>
+                        <label>API ключ (по избор)</label>
+                        <input type="text" class="form-control" placeholder="Въведете API ключ за реални данни">
+                        <small style="color: #666;">Ако не се предостави, ще се използват симулирани данни</small>
+                    </div>
+                </div>
+                <div class="step-navigation">
+                    <button type="button" class="btn btn-secondary" onclick="prevStep(2)">Назад</button>
+                    <button type="button" class="btn btn-primary" onclick="createAlert()">Създай Аларма</button>
+                </div>
+            </div>
+
+            <!-- Existing Alarms List -->
+            <div class="form-section">
+                <h3>Съществуващи Аларми</h3>
+                <div class="alarms-list">
+                    <div class="alarm-item">
+                        <div class="alarm-info">
+                            <h4>Общи Продажби</h4>
+                            <p>Спад > 15% спрямо вчера</p>
+                        </div>
+                        <div class="alarm-controls">
+                            <span class="status-badge">Активна</span>
+                            <button class="alarm-control" onclick="toggleAlert(this)" title="Пауза">⏸️</button>
+                        </div>
+                    </div>
+                    
+                    <div class="alarm-item">
+                        <div class="alarm-info">
+                            <h4>Брой Клиенти</h4>
+                            <p>Спад > 20% спрямо миналата седмица</p>
+                        </div>
+                        <div class="alarm-controls">
+                            <span class="status-badge">Активна</span>
+                            <button class="alarm-control" onclick="toggleAlert(this)" title="Пауза">⏸️</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Details Screen -->
+        <div id="details" class="screen">
+            <h2 class="screen-title">
+                <span>🔍</span>
+                Детайли за Аномалия
+            </h2>
+
+            <div class="details-card">
+                <h3>Общи Продажби - Критична Аномалия</h3>
+                <div class="details-grid">
+                    <div class="detail-item">
+                        <h4>Метрика</h4>
+                        <div class="value">Общи Продажби</div>
+                    </div>
+                    <div class="detail-item">
+                        <h4>Праг</h4>
+                        <div class="value">Спад с повече от 15% спрямо вчера</div>
+                    </div>
+                    <div class="detail-item">
+                        <h4>Действителна стойност</h4>
+                        <div class="value critical">-18%</div>
+                    </div>
+                    <div class="detail-item">
+                        <h4>Време на детекция</h4>
+                        <div class="value">2025-10-02 10:30</div>
+                    </div>
+                </div>
+
+                <div class="notes-section">
+                    <h3>Забележки и Хипотези</h3>
+                    <textarea placeholder="Добавете забележки или хипотези за тази аномалия...">Възможно влияние от промоционалната кампания, която приключи вчера.</textarea>
+                    <br>
+                    <button class="save-btn" onclick="saveNotes()">Запази Забележка</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Panel -->
+        <div id="adminPanel" class="screen admin-panel">
+            <h2 class="screen-title">
+                <span>👨‍💼</span>
+                Административен Панел
+            </h2>
+
+            <div class="admin-stats">
+                <div class="admin-card">
+                    <h3>8</h3>
+                    <p>Общо Потребители</p>
+                </div>
+                <div class="admin-card">
+                    <h3>12</h3>
+                    <p>Активни Аларми</p>
+                </div>
+                <div class="admin-card">
+                    <h3>156</h3>
+                    <p>Детектирани Аномалии</p>
+                </div>
+                <div class="admin-card">
+                    <h3>94%</h3>
+                    <p>System Uptime</p>
+                </div>
+            </div>
+
+            <div class="users-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Потребител</th>
+                            <th>Email</th>
+                            <th>Компания</th>
+                            <th>Роля</th>
+                            <th>Последна активност</th>
+                            <th>Действия</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Даниела Димова</td>
+                            <td>daniela@example.com</td>
+                            <td>Stoic 11</td>
+                            <td>
+                                <select class="role-select">
+                                    <option>Администратор</option>
+                                    <option>Потребител</option>
+                                    <option>Аналитик</option>
+                                </select>
+                            </td>
+                            <td>Преди 5 мин</td>
+                            <td>
+                                <button class="btn btn-primary" style="padding: 5px 10px; font-size: 0.8rem;">Редактирай</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Петър Иванов</td>
+                            <td>petar@company.bg</td>
+                            <td>Tech Solutions</td>
+                            <td>
+                                <select class="role-select">
+                                    <option>Потребител</option>
+                                    <option>Администратор</option>
+                                    <option>Аналитик</option>
+                                </select>
+                            </td>
+                            <td>Преди 2 часа</td>
+                            <td>
+                                <button class="btn btn-primary" style="padding: 5px 10px; font-size: 0.8rem;">Редактирай</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
+    <!-- Bottom Navigation -->
+    <div id="navigation" class="navigation" style="display: none;">
+        <button class="nav-btn active" onclick="showScreen('dashboard')">
+            <span>📊</span>
+            <span>Табло</span>
+        </button>
+        <button class="nav-btn" onclick="showScreen('alerts')">
+            <span>⚙️</span>
+            <span>Аларми (2)</span>
+        </button>
+        <button class="nav-btn" onclick="showScreen('details')">
+            <span>🔍</span>
+            <span>Детайли</span>
+        </button>
+        <button id="adminNavBtn" class="nav-btn" onclick="showScreen('adminPanel')" style="display: none;">
+            <span>👨‍💼</span>
+            <span>Админ</span>
+        </button>
+    </div>
+
+    <script src="auth.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
