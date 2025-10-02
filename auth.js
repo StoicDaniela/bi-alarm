@@ -408,14 +408,17 @@ function clearAuthErrors() {
         errorDiv.style.display = 'none';
     }
 }
-
 // Изчистване на формулари за автентикация
 function clearAuthForms() {
     const loginForm = document.getElementById('loginForm');
     const registerForm = document.getElementById('registerForm');
     
-    if (loginForm) loginForm.reset();
-    if (registerForm) registerForm.reset();
+    if (loginForm && typeof loginForm.reset === 'function') {
+        loginForm.reset();
+    }
+    if (registerForm && typeof registerForm.reset === 'function') {
+        registerForm.reset();
+    }
 }
 
 // Показване на съобщение за успех
