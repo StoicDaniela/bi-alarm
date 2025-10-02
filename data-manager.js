@@ -1,529 +1,558 @@
-/**
- * BI Anomaly Detection System - Data Manager
- * Управление на данни и детекция на аномалии
- */
+// data-manager.js - Business Logic for BI Anomaly Detection System
 
-// === GLOBAL DATA STORAGE ===
-let globalData = {
-    sales: [],
-    traffic: [],
-    production: [],
-    settings: {
-        salesMinThreshold: 2000,
-        salesMaxThreshold: 8000,
-        salesChangePercent: 25,
-        trafficMinThreshold: 1000,
-        trafficMaxThreshold: 6000,
-        trafficChangePercent: 30,
-        productionMinThreshold: 1000,
-        productionMaxThreshold: 3000,
-        productionChangePercent: 20
-    },
-    alerts: [],
-    lastScanTime: null
-};
-
-// === UTILITY FUNCTIONS ===
-function getCurrentDateTime() {
-    return new Date().toISOString();
-}
-
-function formatDate(date) {
-    return new Date(date).toLocaleDateString('bg-BG');
-}
-
-function formatTime(date) {
-    return new Date(date).toLocaleTimeString('bg-BG', { hour: '2-digit', minute: '2-digit' });
-}
-
-function calculatePercentageChange(newValue, oldValue) {
-    if (oldValue === 0) return 0;
-    return ((newValue - oldValue) / oldValue) * 100;
-}
-
-// === DATA PERSISTENCE ===
-function saveDataToStorage() {
-    try {
-        localStorage.setItem('biAnomalyData', JSON.stringify(globalData));
-        console.log('✅ Data saved to localStorage');
-    } catch (error) {
-        console.error('❌ Failed to save data:', error);
+class DataManager {
+    constructor() {
+        this.storageKeys = {
+            data: 'biSystemData',
+            alerts: 'biSystemAlerts', 
+            settings: 'biSystemSettings'
+        };
+        this.initializeSettings();
     }
-}
 
-function loadDataFromStorage() {
-    try {
-        const stored = localStorage.getItem('biAnomalyData');
-        if (stored) {
-            globalData = { ...globalData, ...JSON.parse(stored) };
-            console.log('✅ Data loaded from localStorage');
+    // Initialize default settings
+    initializeSettings() {
+        const defaultSettings = {
+            sales: {
+                minThreshold: 1000,
+                maxThreshold: 50000,
+                percentChange: 20
+            },
+            traffic: {
+                minThreshold: 100,
+                maxThreshold: 10000,
+                percentChange: 30
+            },
+            production: {
+                minThreshold: 50,
+                maxThreshold: 1000,
+                percentChange: 25
+            },
+            financial: {
+                minThreshold: 5000,
+                maxThreshold: 100000,
+                percentChange: 15
+            },
+            autoScanInterval: 3600 // 1 hour in seconds
+        };
+
+        const existingSettings = this.getSettings();
+        if (!existingSettings || Object.keys(existingSettings).length === 0) {
+            this.saveSettings(defaultSettings);
+        }
+    }
+
+    // Data Management Methods
+    getAllData() {
+        const data = localStorage.getItem(this.storageKeys.data);
+        return data ? JSON.parse(data) : [];
+    }
+
+    addDataEntry(entry) {
+        const data = this.getAllData();
+        entry.id = entry.id || Date.now();
+        entry.timestamp = entry.timestamp || new Date().toISOString();
+        data.push(entry);
+        localStorage.setItem(this.storageKeys.data, JSON.stringify(data));
+        
+        // Log the action
+        console.log('Добавен запис:', entry);
+        
+        return entry;
+    }
+
+    deleteDataEntry(id) {
+        const data = this.getAllData();
+        const filteredData = data.filter(entry => entry.id !== id);
+        localStorage.setItem(this.storageKeys.data, JSON.stringify(filteredData));
+        
+        console.log('Изтрит запис с ID:', id);
+        
+        return filteredData;
+    }
+
+    getDataByType(type) {
+        const data = this.getAllData();
+        return data.filter(entry => entry.type === type);
+    }
+
+    getDataByDateRange(startDate, endDate) {
+        const data = this.getAllData();
+        return data.filter(entry => {
+            const entryDate = new Date(entry.date);
+            return entryDate >= new Date(startDate) && entryDate <= new Date(endDate);
+        });
+    }
+
+    // Alert Management Methods
+    getAllAlerts() {
+        const alerts = localStorage.getItem(this.storageKeys.alerts);
+        return alerts ? JSON.parse(alerts) : [];
+    }
+
+    addAlert(alert) {
+        const alerts = this.getAllAlerts();
+        alert.id = alert.id || Date.now();
+        alert.timestamp = alert.timestamp || new Date().toISOString();
+        alert.read = alert.read || false;
+        alerts.unshift(alert); // Add to beginning
+        localStorage.setItem(this.storageKeys.alerts, JSON.stringify(alerts));
+        
+        console.log('Добавен алерт:', alert);
+        
+        return alert;
+    }
+
+    markAlertAsRead(id) {
+        const alerts = this.getAllAlerts();
+        const alert = alerts.find(a => a.id === id);
+        if (alert) {
+            alert.read = true;
+            localStorage.setItem(this.storageKeys.alerts, JSON.stringify(alerts));
+        }
+        return alerts;
+    }
+
+    markAllAlertsAsRead() {
+        const alerts = this.getAllAlerts();
+        alerts.forEach(alert => alert.read = true);
+        localStorage.setItem(this.storageKeys.alerts, JSON.stringify(alerts));
+        return alerts;
+    }
+
+    clearAllAlerts() {
+        localStorage.setItem(this.storageKeys.alerts, JSON.stringify([]));
+        console.log('Изчистени всички алерти');
+        return [];
+    }
+
+    deleteAlert(id) {
+        const alerts = this.getAllAlerts();
+        const filteredAlerts = alerts.filter(alert => alert.id !== id);
+        localStorage.setItem(this.storageKeys.alerts, JSON.stringify(filteredAlerts));
+        return filteredAlerts;
+    }
+
+    // Settings Management Methods
+    getSettings() {
+        const settings = localStorage.getItem(this.storageKeys.settings);
+        return settings ? JSON.parse(settings) : {};
+    }
+
+    saveSettings(settings) {
+        localStorage.setItem(this.storageKeys.settings, JSON.stringify(settings));
+        console.log('Настройките са запазени:', settings);
+        return settings;
+    }
+
+    resetSettings() {
+        localStorage.removeItem(this.storageKeys.settings);
+        this.initializeSettings();
+        return this.getSettings();
+    }
+
+    // Anomaly Detection Methods
+    runAnomalyCheck() {
+        const data = this.getAllData();
+        const settings = this.getSettings();
+        const alerts = [];
+
+        console.log('Започвам проверка за аномалии...');
+
+        // Group data by type
+        const dataByType = {};
+        data.forEach(entry => {
+            if (!dataByType[entry.type]) {
+                dataByType[entry.type] = [];
+            }
+            dataByType[entry.type].push(entry);
+        });
+
+        // Check each data type
+        Object.keys(dataByType).forEach(type => {
+            const typeData = dataByType[type];
+            const typeSettings = settings[type];
+
+            if (!typeSettings) {
+                console.warn(`Няма настройки за тип: ${type}`);
+                return;
+            }
+
+            // Sort by date
+            typeData.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            // Check threshold violations
+            typeData.forEach(entry => {
+                if (entry.value < typeSettings.minThreshold) {
+                    alerts.push({
+                        type: 'threshold',
+                        severity: 'high',
+                        dataType: type,
+                        message: `Стойността ${entry.value} е под минималния праг ${typeSettings.minThreshold}`,
+                        data: entry,
+                        date: entry.date
+                    });
+                }
+
+                if (entry.value > typeSettings.maxThreshold) {
+                    alerts.push({
+                        type: 'threshold',
+                        severity: 'high',
+                        dataType: type,
+                        message: `Стойността ${entry.value} е над максималния праг ${typeSettings.maxThreshold}`,
+                        data: entry,
+                        date: entry.date
+                    });
+                }
+            });
+
+            // Check percentage changes
+            for (let i = 1; i < typeData.length; i++) {
+                const current = typeData[i];
+                const previous = typeData[i - 1];
+                
+                const change = ((current.value - previous.value) / previous.value) * 100;
+                const absChange = Math.abs(change);
+
+                if (absChange > typeSettings.percentChange) {
+                    const direction = change > 0 ? 'увеличение' : 'намаление';
+                    alerts.push({
+                        type: 'percentage',
+                        severity: absChange > typeSettings.percentChange * 2 ? 'high' : 'medium',
+                        dataType: type,
+                        message: `${direction.charAt(0).toUpperCase() + direction.slice(1)} от ${absChange.toFixed(1)}% между ${previous.date} и ${current.date}`,
+                        data: { current, previous, change: absChange },
+                        date: current.date
+                    });
+                }
+            }
+        });
+
+        // Save alerts
+        alerts.forEach(alert => this.addAlert(alert));
+
+        console.log(`Открити ${alerts.length} аномалии`);
+        
+        return alerts;
+    }
+
+    // Statistical Methods
+    getStatistics() {
+        const data = this.getAllData();
+        const alerts = this.getAllAlerts();
+
+        return {
+            totalRecords: data.length,
+            totalAlerts: alerts.length,
+            unreadAlerts: alerts.filter(a => !a.read).length,
+            highSeverityAlerts: alerts.filter(a => a.severity === 'high').length,
+            mediumSeverityAlerts: alerts.filter(a => a.severity === 'medium').length,
+            lowSeverityAlerts: alerts.filter(a => a.severity === 'low').length,
+            dataByType: this.getDataCountByType(),
+            lastCheck: this.getLastCheckTime(),
+            storageUsage: this.getStorageUsage()
+        };
+    }
+
+    getDataCountByType() {
+        const data = this.getAllData();
+        const counts = {};
+        
+        data.forEach(entry => {
+            counts[entry.type] = (counts[entry.type] || 0) + 1;
+        });
+        
+        return counts;
+    }
+
+    getLastCheckTime() {
+        const alerts = this.getAllAlerts();
+        if (alerts.length === 0) return null;
+        
+        return new Date(alerts[0].timestamp).toLocaleString('bg-BG');
+    }
+
+    getStorageUsage() {
+        const data = JSON.stringify(this.getAllData());
+        const alerts = JSON.stringify(this.getAllAlerts());
+        const settings = JSON.stringify(this.getSettings());
+        
+        const totalSize = data.length + alerts.length + settings.length;
+        
+        if (totalSize < 1024) {
+            return `${totalSize} bytes`;
+        } else if (totalSize < 1024 * 1024) {
+            return `${(totalSize / 1024).toFixed(2)} KB`;
+        } else {
+            return `${(totalSize / (1024 * 1024)).toFixed(2)} MB`;
+        }
+    }
+
+    // Data Export/Import Methods
+    exportAllData() {
+        const exportData = {
+            data: this.getAllData(),
+            alerts: this.getAllAlerts(),
+            settings: this.getSettings(),
+            exportDate: new Date().toISOString(),
+            version: '1.0'
+        };
+
+        const dataStr = JSON.stringify(exportData, null, 2);
+        const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+
+        const exportFileDefaultName = `bi-system-backup-${new Date().toISOString().split('T')[0]}.json`;
+
+        const linkElement = document.createElement('a');
+        linkElement.setAttribute('href', dataUri);
+        linkElement.setAttribute('download', exportFileDefaultName);
+        linkElement.click();
+
+        console.log('Данните са експортирани');
+    }
+
+    importData(jsonData) {
+        try {
+            const importData = JSON.parse(jsonData);
+            
+            if (importData.data) {
+                localStorage.setItem(this.storageKeys.data, JSON.stringify(importData.data));
+            }
+            
+            if (importData.alerts) {
+                localStorage.setItem(this.storageKeys.alerts, JSON.stringify(importData.alerts));
+            }
+            
+            if (importData.settings) {
+                localStorage.setItem(this.storageKeys.settings, JSON.stringify(importData.settings));
+            }
+
+            console.log('Данните са успешно импортирани');
+            return true;
+        } catch (error) {
+            console.error('Грешка при импорт на данни:', error);
+            return false;
+        }
+    }
+
+    clearAllData() {
+        const confirmation = confirm('Сигурни ли сте, че искате да изтриете всички данни? Това действие е необратимо!');
+        
+        if (confirmation) {
+            localStorage.removeItem(this.storageKeys.data);
+            localStorage.removeItem(this.storageKeys.alerts);
+            
+            console.log('Всички данни са изчистени');
+            
+            // Reinitialize settings
+            this.initializeSettings();
+            
             return true;
         }
-    } catch (error) {
-        console.error('❌ Failed to load data:', error);
+        
+        return false;
     }
-    return false;
+
+    // CSV Processing Methods
+    parseCSV(csvText) {
+        const lines = csvText.trim().split('\n');
+        const data = [];
+        
+        // Skip header if exists
+        const startIndex = lines[0].toLowerCase().includes('дата') || lines[0].toLowerCase().includes('date') ? 1 : 0;
+        
+        for (let i = startIndex; i < lines.length; i++) {
+            const line = lines[i].trim();
+            if (!line) continue;
+            
+            const columns = line.split(',').map(col => col.trim().replace(/"/g, ''));
+            
+            if (columns.length >= 3) {
+                const entry = {
+                    date: columns[0],
+                    value: parseFloat(columns[1]),
+                    type: columns[2],
+                    description: columns[3] || ''
+                };
+                
+                // Validate data
+                if (entry.date && !isNaN(entry.value) && entry.type) {
+                    data.push(entry);
+                }
+            }
+        }
+        
+        return data;
+    }
+
+    // Auto-scan functionality
+    initializeAutoScan() {
+        const settings = this.getSettings();
+        const interval = settings.autoScanInterval;
+        
+        if (interval && interval > 0) {
+            setInterval(() => {
+                console.log('Автоматична проверка за аномалии...');
+                this.runAnomalyCheck();
+            }, interval * 1000);
+            
+            console.log(`Автоматично сканиране активирано: всеки ${interval} секунди`);
+        }
+    }
+
+    // Utility methods
+    formatCurrency(value) {
+        return new Intl.NumberFormat('bg-BG', {
+            style: 'currency',
+            currency: 'BGN'
+        }).format(value);
+    }
+
+    formatNumber(value) {
+        return new Intl.NumberFormat('bg-BG').format(value);
+    }
+
+    formatDate(date) {
+        return new Date(date).toLocaleDateString('bg-BG');
+    }
+
+    formatDateTime(date) {
+        return new Date(date).toLocaleString('bg-BG');
+    }
 }
 
-// === DATA INPUT FUNCTIONS ===
-function addSalesData() {
-    const date = document.getElementById('salesDate').value;
-    const amount = parseFloat(document.getElementById('salesAmount').value);
-    const description = document.getElementById('salesDescription').value;
-    
-    if (!date || !amount) {
-        showNotification('❌ Моля въведете дата и сума!', 'error');
-        return;
-    }
-    
-    const salesEntry = {
-        id: Date.now(),
-        date: date,
-        amount: amount,
-        description: description || '',
-        timestamp: getCurrentDateTime()
-    };
-    
-    globalData.sales.push(salesEntry);
-    saveDataToStorage();
-    
-    // Clear form
-    document.getElementById('salesDate').value = '';
-    document.getElementById('salesAmount').value = '';
-    document.getElementById('salesDescription').value = '';
-    
-    showNotification('✅ Продажбата е добавена успешно!', 'success');
-    updateDashboard();
-    checkForAnomalies();
+// Create global instance
+const dataManager = new DataManager();
+
+// Global functions for backward compatibility
+function addDataEntry(entry) {
+    return dataManager.addDataEntry(entry);
 }
 
-function addTrafficData() {
-    const date = document.getElementById('trafficDate').value;
-    const visitors = parseInt(document.getElementById('trafficVisitors').value);
-    const pageViews = parseInt(document.getElementById('trafficPageViews').value);
-    const source = document.getElementById('trafficSource').value;
-    
-    if (!date || !visitors) {
-        showNotification('❌ Моля въведете дата и брой посетители!', 'error');
-        return;
-    }
-    
-    const trafficEntry = {
-        id: Date.now(),
-        date: date,
-        visitors: visitors,
-        pageViews: pageViews || 0,
-        source: source || '',
-        timestamp: getCurrentDateTime()
-    };
-    
-    globalData.traffic.push(trafficEntry);
-    saveDataToStorage();
-    
-    // Clear form
-    document.getElementById('trafficDate').value = '';
-    document.getElementById('trafficVisitors').value = '';
-    document.getElementById('trafficPageViews').value = '';
-    document.getElementById('trafficSource').value = '';
-    
-    showNotification('✅ Трафик данните са добавени успешно!', 'success');
-    updateDashboard();
-    checkForAnomalies();
+function runAnomalyCheck() {
+    return dataManager.runAnomalyCheck();
 }
 
-function addProductionData() {
-    const date = document.getElementById('productionDate').value;
-    const units = parseInt(document.getElementById('productionUnits').value);
-    const defects = parseInt(document.getElementById('productionDefects').value);
-    const line = document.getElementById('productionLine').value;
-    
-    if (!date || !units) {
-        showNotification('❌ Моля въведете дата и произведени единици!', 'error');
-        return;
-    }
-    
-    const productionEntry = {
-        id: Date.now(),
-        date: date,
-        units: units,
-        defects: defects || 0,
-        line: line || '',
-        defectRate: units > 0 ? (defects / units) * 100 : 0,
-        timestamp: getCurrentDateTime()
-    };
-    
-    globalData.production.push(productionEntry);
-    saveDataToStorage();
-    
-    // Clear form
-    document.getElementById('productionDate').value = '';
-    document.getElementById('productionUnits').value = '';
-    document.getElementById('productionDefects').value = '';
-    document.getElementById('productionLine').value = '';
-    
-    showNotification('✅ Производствените данни са добавени успешно!', 'success');
-    updateDashboard();
-    checkForAnomalies();
+function clearAllAlerts() {
+    return dataManager.clearAllAlerts();
 }
 
-// === SETTINGS MANAGEMENT ===
-function saveAnomalySettings() {
+function markAllAlertsRead() {
+    return dataManager.markAllAlertsAsRead();
+}
+
+function saveSettings() {
     const settings = {
-        salesMinThreshold: parseFloat(document.getElementById('salesMinThreshold').value) || 0,
-        salesMaxThreshold: parseFloat(document.getElementById('salesMaxThreshold').value) || 999999,
-        salesChangePercent: parseFloat(document.getElementById('salesChangePercent').value) || 25,
-        trafficMinThreshold: parseFloat(document.getElementById('trafficMinThreshold').value) || 0,
-        trafficMaxThreshold: parseFloat(document.getElementById('trafficMaxThreshold').value) || 999999,
-        trafficChangePercent: parseFloat(document.getElementById('trafficChangePercent').value) || 30,
-        productionMinThreshold: parseFloat(document.getElementById('productionMinThreshold').value) || 0,
-        productionMaxThreshold: parseFloat(document.getElementById('productionMaxThreshold').value) || 999999,
-        productionChangePercent: parseFloat(document.getElementById('productionChangePercent').value) || 20
+        sales: {
+            minThreshold: parseFloat(document.getElementById('salesMinThreshold').value),
+            maxThreshold: parseFloat(document.getElementById('salesMaxThreshold').value),
+            percentChange: parseFloat(document.getElementById('salesPercentChange').value)
+        },
+        traffic: {
+            minThreshold: parseFloat(document.getElementById('trafficMinThreshold').value),
+            maxThreshold: parseFloat(document.getElementById('trafficMaxThreshold').value),
+            percentChange: parseFloat(document.getElementById('trafficPercentChange').value)
+        },
+        production: {
+            minThreshold: parseFloat(document.getElementById('productionMinThreshold').value),
+            maxThreshold: parseFloat(document.getElementById('productionMaxThreshold').value),
+            percentChange: parseFloat(document.getElementById('productionPercentChange').value)
+        },
+        financial: {
+            minThreshold: parseFloat(document.getElementById('financialMinThreshold').value),
+            maxThreshold: parseFloat(document.getElementById('financialMaxThreshold').value),
+            percentChange: parseFloat(document.getElementById('financialPercentChange').value)
+        },
+        autoScanInterval: parseInt(document.getElementById('autoScanInterval').value)
     };
     
-    globalData.settings = { ...globalData.settings, ...settings };
-    saveDataToStorage();
-    
-    showNotification('✅ Настройките са записани успешно!', 'success');
-    console.log('📊 Updated anomaly settings:', settings);
+    dataManager.saveSettings(settings);
+    showAlert('Настройките са запазени успешно!', 'success');
 }
 
-function loadAnomalySettings() {
-    const settings = globalData.settings;
-    
-    // Load values into form fields
-    document.getElementById('salesMinThreshold').value = settings.salesMinThreshold || '';
-    document.getElementById('salesMaxThreshold').value = settings.salesMaxThreshold === 999999 ? '' : settings.salesMaxThreshold;
-    document.getElementById('salesChangePercent').value = settings.salesChangePercent || '';
-    
-    document.getElementById('trafficMinThreshold').value = settings.trafficMinThreshold || '';
-    document.getElementById('trafficMaxThreshold').value = settings.trafficMaxThreshold === 999999 ? '' : settings.trafficMaxThreshold;
-    document.getElementById('trafficChangePercent').value = settings.trafficChangePercent || '';
-    
-    document.getElementById('productionMinThreshold').value = settings.productionMinThreshold || '';
-    document.getElementById('productionMaxThreshold').value = settings.productionMaxThreshold === 999999 ? '' : settings.productionMaxThreshold;
-    document.getElementById('productionChangePercent').value = settings.productionChangePercent || '';
+function resetSettings() {
+    dataManager.resetSettings();
+    loadSettings();
+    showAlert('Настройките са възстановени по подразбиране!', 'success');
 }
 
-// === ANOMALY DETECTION ===
-function checkForAnomalies() {
-    console.log('🔍 Running anomaly detection...');
+function loadSettings() {
+    const settings = dataManager.getSettings();
     
-    const newAlerts = [];
-    const now = getCurrentDateTime();
-    
-    // Check Sales Anomalies
-    if (globalData.sales.length > 0) {
-        const latestSales = globalData.sales[globalData.sales.length - 1];
-        const previousSales = globalData.sales.length > 1 ? globalData.sales[globalData.sales.length - 2] : null;
-        
-        // Threshold check
-        if (latestSales.amount < globalData.settings.salesMinThreshold) {
-            newAlerts.push(createAlert('critical', 'sales', 
-                `Продажбите са под минималния праг: ${latestSales.amount} лв (праг: ${globalData.settings.salesMinThreshold} лв)`));
-        }
-        if (latestSales.amount > globalData.settings.salesMaxThreshold) {
-            newAlerts.push(createAlert('warning', 'sales', 
-                `Продажбите са над максималния праг: ${latestSales.amount} лв (праг: ${globalData.settings.salesMaxThreshold} лв)`));
-        }
-        
-        // Percentage change check
-        if (previousSales) {
-            const changePercent = calculatePercentageChange(latestSales.amount, previousSales.amount);
-            if (Math.abs(changePercent) > globalData.settings.salesChangePercent) {
-                const direction = changePercent > 0 ? 'ръст' : 'спад';
-                const severity = Math.abs(changePercent) > 40 ? 'critical' : 'warning';
-                newAlerts.push(createAlert(severity, 'sales', 
-                    `Значителен ${direction} в продажбите: ${Math.abs(changePercent).toFixed(1)}% (праг: ${globalData.settings.salesChangePercent}%)`));
-            }
-        }
+    if (settings.sales) {
+        document.getElementById('salesMinThreshold').value = settings.sales.minThreshold;
+        document.getElementById('salesMaxThreshold').value = settings.sales.maxThreshold;
+        document.getElementById('salesPercentChange').value = settings.sales.percentChange;
     }
     
-    // Check Traffic Anomalies
-    if (globalData.traffic.length > 0) {
-        const latestTraffic = globalData.traffic[globalData.traffic.length - 1];
-        const previousTraffic = globalData.traffic.length > 1 ? globalData.traffic[globalData.traffic.length - 2] : null;
-        
-        // Threshold check
-        if (latestTraffic.visitors < globalData.settings.trafficMinThreshold) {
-            newAlerts.push(createAlert('warning', 'traffic', 
-                `Трафикът е под минималния праг: ${latestTraffic.visitors} посетители (праг: ${globalData.settings.trafficMinThreshold})`));
-        }
-        if (latestTraffic.visitors > globalData.settings.trafficMaxThreshold) {
-            newAlerts.push(createAlert('warning', 'traffic', 
-                `Трафикът е над максималния праг: ${latestTraffic.visitors} посетители (праг: ${globalData.settings.trafficMaxThreshold})`));
-        }
-        
-        // Percentage change check
-        if (previousTraffic) {
-            const changePercent = calculatePercentageChange(latestTraffic.visitors, previousTraffic.visitors);
-            if (Math.abs(changePercent) > globalData.settings.trafficChangePercent) {
-                const direction = changePercent > 0 ? 'ръст' : 'спад';
-                newAlerts.push(createAlert('warning', 'traffic', 
-                    `Значителен ${direction} в трафика: ${Math.abs(changePercent).toFixed(1)}% (праг: ${globalData.settings.trafficChangePercent}%)`));
-            }
-        }
+    if (settings.traffic) {
+        document.getElementById('trafficMinThreshold').value = settings.traffic.minThreshold;
+        document.getElementById('trafficMaxThreshold').value = settings.traffic.maxThreshold;
+        document.getElementById('trafficPercentChange').value = settings.traffic.percentChange;
     }
     
-    // Check Production Anomalies
-    if (globalData.production.length > 0) {
-        const latestProduction = globalData.production[globalData.production.length - 1];
-        const previousProduction = globalData.production.length > 1 ? globalData.production[globalData.production.length - 2] : null;
-        
-        // Threshold check
-        if (latestProduction.units < globalData.settings.productionMinThreshold) {
-            newAlerts.push(createAlert('warning', 'production', 
-                `Производството е под минималния праг: ${latestProduction.units} единици (праг: ${globalData.settings.productionMinThreshold})`));
-        }
-        if (latestProduction.units > globalData.settings.productionMaxThreshold) {
-            newAlerts.push(createAlert('info', 'production', 
-                `Производството е над максималния праг: ${latestProduction.units} единици (праг: ${globalData.settings.productionMaxThreshold})`));
-        }
-        
-        // Defect rate check
-        if (latestProduction.defectRate > 5) {
-            const severity = latestProduction.defectRate > 10 ? 'critical' : 'warning';
-            newAlerts.push(createAlert(severity, 'production', 
-                `Висок процент дефекти: ${latestProduction.defectRate.toFixed(1)}% (норма: <5%)`));
-        }
-        
-        // Percentage change check
-        if (previousProduction) {
-            const changePercent = calculatePercentageChange(latestProduction.units, previousProduction.units);
-            if (Math.abs(changePercent) > globalData.settings.productionChangePercent) {
-                const direction = changePercent > 0 ? 'ръст' : 'спад';
-                newAlerts.push(createAlert('info', 'production', 
-                    `Значителен ${direction} в производството: ${Math.abs(changePercent).toFixed(1)}% (праг: ${globalData.settings.productionChangePercent}%)`));
-            }
-        }
+    if (settings.production) {
+        document.getElementById('productionMinThreshold').value = settings.production.minThreshold;
+        document.getElementById('productionMaxThreshold').value = settings.production.maxThreshold;
+        document.getElementById('productionPercentChange').value = settings.production.percentChange;
     }
     
-    // Add new alerts to global alerts
-    newAlerts.forEach(alert => {
-        globalData.alerts.unshift(alert); // Add to beginning
-    });
-    
-    // Keep only last 100 alerts
-    if (globalData.alerts.length > 100) {
-        globalData.alerts = globalData.alerts.slice(0, 100);
+    if (settings.financial) {
+        document.getElementById('financialMinThreshold').value = settings.financial.minThreshold;
+        document.getElementById('financialMaxThreshold').value = settings.financial.maxThreshold;
+        document.getElementById('financialPercentChange').value = settings.financial.percentChange;
     }
     
-    globalData.lastScanTime = now;
-    saveDataToStorage();
-    
-    if (newAlerts.length > 0) {
-        console.log(`🚨 Found ${newAlerts.length} new anomalies`);
-        updateAlertsDisplay();
+    if (settings.autoScanInterval !== undefined) {
+        document.getElementById('autoScanInterval').value = settings.autoScanInterval;
+    }
+}
+
+function exportAllData() {
+    dataManager.exportAllData();
+}
+
+function clearAllData() {
+    if (dataManager.clearAllData()) {
         updateDashboard();
-    } else {
-        console.log('✅ No anomalies detected');
+        updateDataTable();
+        updateAlertsList();
+        showAlert('Всички данни са изчистени!', 'success');
     }
 }
 
-function createAlert(severity, category, message) {
-    return {
-        id: Date.now() + Math.random(),
-        severity: severity, // 'critical', 'warning', 'info', 'success'
-        category: category, // 'sales', 'traffic', 'production', 'system'
-        message: message,
-        timestamp: getCurrentDateTime(),
-        read: false,
-        resolved: false
-    };
+function backupSystem() {
+    dataManager.exportAllData();
+    showAlert('Backup файлът е създаден и свален!', 'success');
 }
 
-// === UI UPDATE FUNCTIONS ===
-function updateDashboard() {
-    // Update metrics
-    const criticalAlerts = globalData.alerts.filter(a => a.severity === 'critical' && !a.resolved).length;
-    const warningAlerts = globalData.alerts.filter(a => a.severity === 'warning' && !a.resolved).length;
-    const totalActive = criticalAlerts + warningAlerts;
-    
-    // Update dashboard cards
-    const activeAlertsElement = document.querySelector('#dashboard .metric');
-    if (activeAlertsElement) {
-        activeAlertsElement.textContent = totalActive;
-        activeAlertsElement.style.color = totalActive > 0 ? '#ff6b6b' : '#4caf50';
-    }
-    
-    // Update analyzed data count
-    const totalData = globalData.sales.length + globalData.traffic.length + globalData.production.length;
-    const analyzedDataElements = document.querySelectorAll('#dashboard .metric');
-    if (analyzedDataElements[1]) {
-        analyzedDataElements[1].textContent = totalData.toLocaleString();
-    }
-    
-    console.log('📊 Dashboard updated');
+function viewSystemLogs() {
+    const stats = dataManager.getStatistics();
+    const logWindow = window.open('', '_blank', 'width=600,height=400');
+    logWindow.document.write(`
+        <html>
+        <head><title>Системни Логове</title></head>
+        <body style="font-family: monospace; padding: 20px;">
+        <h2>Системна Информация</h2>
+        <pre>
+Общо записи: ${stats.totalRecords}
+Общо алерти: ${stats.totalAlerts}
+Непрочетени алерти: ${stats.unreadAlerts}
+Използвано място: ${stats.storageUsage}
+Последна проверка: ${stats.lastCheck || 'Никога'}
+
+Данни по тип:
+${Object.entries(stats.dataByType).map(([type, count]) => `- ${type}: ${count}`).join('\n')}
+
+Генериран на: ${new Date().toLocaleString('bg-BG')}
+        </pre>
+        </body>
+        </html>
+    `);
 }
 
-function updateAlertsDisplay() {
-    updateAlertCounts();
-    updateActiveAlerts();
-    updateAlertHistory();
+function initializeAutoScan() {
+    dataManager.initializeAutoScan();
 }
 
-function updateAlertCounts() {
-    const criticalCount = globalData.alerts.filter(a => a.severity === 'critical' && !a.resolved).length;
-    const warningCount = globalData.alerts.filter(a => a.severity === 'warning' && !a.resolved).length;
-    const resolvedCount = globalData.alerts.filter(a => a.resolved).length;
-    
-    const criticalElement = document.getElementById('criticalAlertsCount');
-    const warningElement = document.getElementById('warningAlertsCount');
-    const resolvedElement = document.getElementById('resolvedAlertsCount');
-    
-    if (criticalElement) criticalElement.textContent = criticalCount;
-    if (warningElement) warningElement.textContent = warningCount;
-    if (resolvedElement) resolvedElement.textContent = resolvedCount;
-}
-
-function updateActiveAlerts() {
-    const activeAlertsContainer = document.getElementById('activeAlerts');
-    if (!activeAlertsContainer) return;
-    
-    const activeAlerts = globalData.alerts.filter(a => !a.resolved).slice(0, 10);
-    
-    if (activeAlerts.length === 0) {
-        activeAlertsContainer.innerHTML = '<div class="alert alert-success">🎉 Няма активни аларми! Всичко работи нормално.</div>';
-        return;
-    }
-    
-    activeAlertsContainer.innerHTML = activeAlerts.map(alert => {
-        const severityClass = {
-            'critical': 'alert-critical',
-            'warning': 'alert-warning',
-            'info': 'alert-info',
-            'success': 'alert-success'
-        }[alert.severity] || 'alert-info';
-        
-        const severityIcon = {
-            'critical': '🔴 КРИТИЧНА АНОМАЛИЯ',
-            'warning': '🟡 ПРЕДУПРЕЖДЕНИЕ',
-            'info': '🔵 ИНФОРМАЦИЯ',
-            'success': '🟢 УСПЕХ'
-        }[alert.severity] || '🔵 ИНФОРМАЦИЯ';
-        
-        const categoryName = {
-            'sales': 'Продажби',
-            'traffic': 'Уебсайт Трафик',
-            'production': 'Производство',
-            'system': 'Система'
-        }[alert.category] || 'Система';
-        
-        return `
-            <div class="alert ${severityClass}">
-                <strong>${severityIcon} - ${categoryName}</strong>
-                <span class="alert-time">${formatTime(alert.timestamp)}</span><br>
-                ${alert.message}
-            </div>
-        `;
-    }).join('');
-}
-
-function updateAlertHistory() {
-    const historyContainer = document.querySelector('#alertHistory tbody');
-    if (!historyContainer) return;
-    
-    const recentAlerts = globalData.alerts.slice(0, 20);
-    
-    historyContainer.innerHTML = recentAlerts.map(alert => {
-        const severityIcon = {
-            'critical': '🔴 Критична',
-            'warning': '🟡 Предупреждение',
-            'info': '🔵 Информация',
-            'success': '🟢 Успех'
-        }[alert.severity] || '🔵 Информация';
-        
-        const categoryName = {
-            'sales': 'Продажби',
-            'traffic': 'Трафик',
-            'production': 'Производство',
-            'system': 'Система'
-        }[alert.category] || 'Система';
-        
-        const status = alert.resolved ? 
-            '<span style="color: #4caf50;">Решена</span>' : 
-            '<span style="color: #ff9800;">Активна</span>';
-        
-        return `
-            <tr>
-                <td>${formatTime(alert.timestamp)}</td>
-                <td><span style="color: ${alert.severity === 'critical' ? '#ff6b6b' : alert.severity === 'warning' ? '#ffa94d' : '#4caf50'};">${severityIcon}</span></td>
-                <td>${categoryName}</td>
-                <td>${alert.message.substring(0, 50)}${alert.message.length > 50 ? '...' : ''}</td>
-                <td>${status}</td>
-            </tr>
-        `;
-    }).join('');
-}
-
-// === NOTIFICATION SYSTEM ===
-function showNotification(message, type = 'info') {
-    // Create notification element
-    const notification = document.createElement('div');
-    notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 15px 20px;
-        border-radius: 8px;
-        color: white;
-        font-weight: 600;
-        z-index: 10000;
-        max-width: 300px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        transition: all 0.3s ease;
-    `;
-    
-    // Set background color based on type
-    const colors = {
-        'success': '#4caf50',
-        'error': '#ff6b6b',
-        'warning': '#ffa94d',
-        'info': '#2196f3'
-    };
-    notification.style.backgroundColor = colors[type] || colors.info;
-    
-    notification.textContent = message;
-    document.body.appendChild(notification);
-    
-    // Auto remove after 4 seconds
-    setTimeout(() => {
-        notification.style.opacity = '0';
-        notification.style.transform = 'translateX(100%)';
-        setTimeout(() => {
-            if (notification.parentNode) {
-                notification.parentNode.removeChild(notification);
-            }
-        }, 300);
-    }, 4000);
-}
-
-// === INITIALIZATION ===
-function initializeDataManager() {
-    console.log('🚀 Initializing Data Manager...');
-    
-    // Load data from storage
-    loadDataFromStorage();
-    
-    // Load settings into form
-    setTimeout(() => {
-        loadAnomalySettings();
-        updateDashboard();
-        updateAlertsDisplay();
-    }, 500);
-    
-    // Set up automatic anomaly checking (every 5 minutes)
-    setInterval(() => {
-        if (globalData.sales.length > 0 || globalData.traffic.length > 0 || globalData.production.length > 0) {
-            checkForAnomalies();
-        }
-    }, 5 * 60 * 1000); // 5 minutes
-    
-    console.log('✅ Data Manager initialized successfully');
-}
-
-// Initialize when document is ready
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializeDataManager);
-} else {
-    initializeDataManager();
-}
+console.log('Data Manager инициализиран успешно!');
