@@ -4,7 +4,7 @@
 const users = [
     {
         id: 1,
-        email: "daniela.dimova@stoic11.com",
+        email: "stoicdaniela@gmail.com",
         password: "admin123",
         name: "Даниела Димова",
         role: "Администратор",
