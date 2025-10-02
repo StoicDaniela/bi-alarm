@@ -49,14 +49,16 @@
             margin: 0 auto;
             background: white;
             box-shadow: var(--shadow-medium);
-            position: relative;
+            display: flex;
+            flex-direction: column;
         }
 
         /* Header */
         .header {
             background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
             color: white;
-            padding: 1rem 1.5rem;
+            padding: 1.5rem;
+            text-align: center;
             position: relative;
             overflow: hidden;
         }
@@ -65,89 +67,103 @@
             content: '';
             position: absolute;
             top: -50%;
-            right: -50%;
+            left: -50%;
             width: 200%;
             height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-            animation: shimmer 3s ease-in-out infinite alternate;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            animation: shimmer 3s ease-in-out infinite;
         }
 
         @keyframes shimmer {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(180deg); }
+            0%, 100% { transform: translate(-50%, -50%) rotate(0deg); }
+            50% { transform: translate(-50%, -50%) rotate(180deg); }
         }
 
-        .header-content {
-            position: relative;
-            z-index: 1;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .app-title {
+        .header h1 {
             font-size: 1.8rem;
             font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 2;
         }
 
-        .alert-indicator {
-            background: rgba(231, 76, 60, 0.9);
-            color: white;
-            padding: 0.3rem 0.8rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
+        .status-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
             animation: pulse 2s infinite;
         }
 
+        .status-dot.normal { background-color: var(--success-color); }
+        .status-dot.warning { background-color: var(--warning-color); }
+        .status-dot.critical { background-color: var(--danger-color); animation: pulse 1s infinite; }
+
         @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.8; transform: scale(1.05); }
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
 
         /* Navigation */
-        .nav-bar {
-            background: var(--background-light);
-            border-bottom: 2px solid var(--border-color);
-            padding: 0.5rem 1.5rem;
+        .navigation {
             display: flex;
-            gap: 1rem;
+            background: var(--background-light);
+            border-top: 1px solid var(--border-color);
+            padding: 0.5rem;
         }
 
         .nav-btn {
+            flex: 1;
+            padding: 1rem;
             background: transparent;
-            border: 2px solid transparent;
-            padding: 0.7rem 1.2rem;
-            border-radius: var(--border-radius-medium);
+            border: none;
+            text-align: center;
             cursor: pointer;
-            transition: all var(--transition-medium);
-            font-weight: 600;
+            border-radius: var(--border-radius-small);
+            transition: var(--transition-medium);
             display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.25rem;
+            font-size: 0.9rem;
             color: var(--text-secondary);
         }
 
-        .nav-btn:hover, .nav-btn.active {
+        .nav-btn:hover {
+            background: rgba(86, 164, 177, 0.1);
+            color: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        .nav-btn.active {
             background: var(--primary-color);
             color: white;
-            border-color: var(--primary-color);
-            transform: translateY(-2px);
             box-shadow: var(--shadow-light);
+        }
+
+        .nav-btn .icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.25rem;
         }
 
         /* Main Content */
         .main-content {
-            padding: 2rem 1.5rem;
-            min-height: calc(100vh - 140px);
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
         }
 
         .screen {
             display: none;
-            animation: fadeIn 0.5s ease-in-out;
+            animation: fadeIn 0.3s ease;
         }
 
         .screen.active {
@@ -159,168 +175,188 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Stats Cards */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .stat-card {
-            background: linear-gradient(135deg, white 0%, #F8FDFF 100%);
-            border: 1px solid var(--border-color);
-            border-radius: var(--border-radius-large);
-            padding: 1.5rem;
-            text-align: center;
-            transition: all var(--transition-medium);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(86, 164, 177, 0.1), transparent);
-            transition: left 0.5s ease;
-        }
-
-        .stat-card:hover::before {
-            left: 100%;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-heavy);
-            border-color: var(--primary-color);
-        }
-
-        .stat-value {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: var(--primary-color);
-            margin-bottom: 0.5rem;
-        }
-
-        .stat-label {
-            color: var(--text-secondary);
-            font-weight: 600;
-        }
-
-        /* Notifications */
-        .notifications {
+        /* Dashboard */
+        .section {
             margin-bottom: 2rem;
         }
 
         .section-title {
-            font-size: 1.4rem;
-            font-weight: 700;
+            font-size: 1.3rem;
+            font-weight: 600;
             margin-bottom: 1rem;
             color: var(--text-primary);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+            border-left: 4px solid var(--primary-color);
+            padding-left: 1rem;
+        }
+
+        .notifications {
+            display: grid;
+            gap: 1rem;
+            margin-bottom: 2rem;
         }
 
         .notification-card {
             background: white;
-            border: 1px solid var(--border-color);
             border-radius: var(--border-radius-medium);
-            padding: 1.2rem;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            transition: all var(--transition-medium);
+            box-shadow: var(--shadow-light);
+            padding: 1.5rem;
+            border-left: 4px solid var(--primary-color);
+            transition: var(--transition-medium);
             cursor: pointer;
+            position: relative;
+            overflow: hidden;
         }
 
         .notification-card:hover {
+            transform: translateY(-2px);
             box-shadow: var(--shadow-medium);
-            transform: translateX(5px);
-            border-color: var(--primary-color);
         }
 
-        .status-indicator {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            flex-shrink: 0;
+        .notification-card.warning {
+            border-left-color: var(--warning-color);
         }
 
-        .status-critical { background: var(--danger-color); }
-        .status-warning { background: var(--warning-color); }
-        .status-normal { background: var(--success-color); }
+        .notification-card.critical {
+            border-left-color: var(--danger-color);
+            animation: subtle-glow 3s ease-in-out infinite;
+        }
 
-        .notification-content {
-            flex: 1;
+        @keyframes subtle-glow {
+            0%, 100% { box-shadow: var(--shadow-light); }
+            50% { box-shadow: 0 8px 25px rgba(231, 76, 60, 0.2); }
+        }
+
+        .notification-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.5rem;
         }
 
         .notification-title {
             font-weight: 600;
-            margin-bottom: 0.3rem;
+            color: var(--text-primary);
+            font-size: 1.1rem;
         }
 
-        .notification-desc {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-        }
-
-        .notification-time {
-            color: var(--text-secondary);
+        .notification-badge {
+            background: rgba(231, 76, 60, 0.1);
+            color: var(--danger-color);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
             font-size: 0.8rem;
-            white-space: nowrap;
+            font-weight: 500;
+        }
+
+        .notification-badge.warning {
+            background: rgba(243, 156, 18, 0.1);
+            color: var(--warning-color);
+        }
+
+        .notification-value {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--danger-color);
+            margin: 0.5rem 0;
+        }
+
+        .notification-value.warning {
+            color: var(--warning-color);
+        }
+
+        .notification-value.positive {
+            color: var(--success-color);
+        }
+
+        .notification-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
         }
 
         .notification-arrow {
             color: var(--primary-color);
+            font-weight: bold;
             font-size: 1.2rem;
-            transition: transform var(--transition-fast);
         }
 
-        .notification-card:hover .notification-arrow {
-            transform: translateX(5px);
+        /* Buttons */
+        .btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--border-radius-small);
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: var(--transition-fast);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
         }
 
-        /* Form Elements */
-        .form-container {
-            background: white;
-            border: 1px solid var(--border-color);
-            border-radius: var(--border-radius-large);
-            padding: 2rem;
-            margin-bottom: 2rem;
+        .btn:hover {
+            background: #4A92A0;
+            transform: translateY(-1px);
             box-shadow: var(--shadow-light);
         }
 
-        .form-step {
-            margin-bottom: 2rem;
+        .btn-secondary {
+            background: var(--text-secondary);
         }
 
-        .step-title {
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            color: var(--primary-color);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+        .btn-secondary:hover {
+            background: #6C7B7D;
         }
 
-        .step-number {
+        .btn-success {
+            background: var(--success-color);
+        }
+
+        .btn-success:hover {
+            background: #27AE60;
+        }
+
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+        }
+
+        /* Alert Setup */
+        .setup-container {
+            background: white;
+            border-radius: var(--border-radius-medium);
+            box-shadow: var(--shadow-light);
+            overflow: hidden;
+        }
+
+        .setup-header {
             background: var(--primary-color);
             color: white;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 0.9rem;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .setup-steps {
+            padding: 2rem;
+        }
+
+        .step {
+            display: none;
+        }
+
+        .step.active {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
         }
 
         .form-group {
@@ -329,19 +365,18 @@
 
         .form-label {
             display: block;
-            font-weight: 600;
             margin-bottom: 0.5rem;
+            font-weight: 500;
             color: var(--text-primary);
         }
 
         .form-input {
             width: 100%;
-            padding: 0.8rem;
+            padding: 0.75rem;
             border: 2px solid var(--border-color);
             border-radius: var(--border-radius-small);
             font-size: 1rem;
-            transition: all var(--transition-fast);
-            background: white;
+            transition: var(--transition-fast);
         }
 
         .form-input:focus {
@@ -350,252 +385,216 @@
             box-shadow: 0 0 0 3px rgba(86, 164, 177, 0.1);
         }
 
-        .radio-group {
-            display: flex;
-            flex-direction: column;
-            gap: 0.8rem;
-        }
-
-        .radio-option {
-            display: flex;
-            align-items: center;
-            gap: 0.8rem;
-            padding: 0.8rem;
+        .form-select {
+            width: 100%;
+            padding: 0.75rem;
             border: 2px solid var(--border-color);
             border-radius: var(--border-radius-small);
-            cursor: pointer;
-            transition: all var(--transition-fast);
-        }
-
-        .radio-option:hover {
-            border-color: var(--primary-color);
-            background: rgba(86, 164, 177, 0.05);
-        }
-
-        .radio-option.selected {
-            border-color: var(--primary-color);
-            background: rgba(86, 164, 177, 0.1);
-        }
-
-        .radio-input {
-            margin: 0;
-        }
-
-        /* Buttons */
-        .btn {
-            padding: 0.8rem 1.5rem;
-            border: none;
-            border-radius: var(--border-radius-small);
-            font-weight: 600;
-            cursor: pointer;
-            transition: all var(--transition-medium);
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            text-decoration: none;
             font-size: 1rem;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-medium);
-        }
-
-        .btn-secondary {
-            background: transparent;
-            color: var(--primary-color);
-            border: 2px solid var(--primary-color);
-        }
-
-        .btn-secondary:hover {
-            background: var(--primary-color);
-            color: white;
-        }
-
-        .btn-success {
-            background: var(--success-color);
-            color: white;
-        }
-
-        .btn-warning {
-            background: var(--warning-color);
-            color: white;
-        }
-
-        .btn-danger {
-            background: var(--danger-color);
-            color: white;
-        }
-
-        .form-actions {
-            display: flex;
-            gap: 1rem;
-            justify-content: flex-end;
-            margin-top: 2rem;
-        }
-
-        /* Existing Alarms */
-        .alarm-item {
             background: white;
-            border: 1px solid var(--border-color);
-            border-radius: var(--border-radius-medium);
-            padding: 1.2rem;
-            margin-bottom: 1rem;
+            cursor: pointer;
+        }
+
+        .suggestions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .suggestion-btn {
+            padding: 1rem;
+            background: rgba(86, 164, 177, 0.1);
+            border: 2px solid transparent;
+            border-radius: var(--border-radius-small);
+            cursor: pointer;
+            text-align: center;
+            transition: var(--transition-fast);
+            font-weight: 500;
+        }
+
+        .suggestion-btn:hover {
+            background: rgba(86, 164, 177, 0.2);
+            border-color: var(--primary-color);
+        }
+
+        .step-navigation {
             display: flex;
-            align-items: center;
+            justify-content: space-between;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* Alarm Configurations */
+        .alarm-configs {
+            display: grid;
             gap: 1rem;
         }
 
-        .alarm-info {
-            flex: 1;
+        .alert-config {
+            background: white;
+            border-radius: var(--border-radius-medium);
+            box-shadow: var(--shadow-light);
+            padding: 1.5rem;
+            border-left: 4px solid var(--success-color);
         }
 
-        .alarm-metric {
+        .config-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .config-title {
             font-weight: 600;
-            margin-bottom: 0.3rem;
+            font-size: 1.1rem;
+            color: var(--text-primary);
         }
 
-        .alarm-condition {
+        .config-description {
             color: var(--text-secondary);
-            font-size: 0.9rem;
+            margin-bottom: 1rem;
         }
 
-        .alarm-status {
-            padding: 0.3rem 0.8rem;
+        .config-status {
+            background: rgba(74, 222, 128, 0.2);
+            color: #4ADE80;
+            padding: 0.25rem 0.75rem;
             border-radius: 20px;
             font-size: 0.8rem;
-            font-weight: 600;
+            font-weight: 500;
         }
 
-        .alarm-status.active {
-            background: rgba(46, 204, 113, 0.1);
-            color: var(--success-color);
+        .config-status.inactive {
+            background: rgba(107, 114, 128, 0.2);
+            color: #6B7280;
         }
 
         .alarm-control {
             background: none;
             border: none;
-            font-size: 1.5rem;
+            font-size: 1.2rem;
             cursor: pointer;
-            padding: 0.5rem;
-            border-radius: 50%;
-            transition: all var(--transition-fast);
+            padding: 0.25rem;
+            border-radius: 4px;
+            transition: var(--transition-fast);
         }
 
         .alarm-control:hover {
-            background: var(--border-color);
+            background: rgba(86, 164, 177, 0.1);
         }
 
-        /* Chart Container */
-        .chart-container {
+        /* Details Screen */
+        .anomaly-details {
             background: white;
-            border: 1px solid var(--border-color);
             border-radius: var(--border-radius-medium);
+            box-shadow: var(--shadow-light);
+            overflow: hidden;
+        }
+
+        .anomaly-header {
+            background: linear-gradient(135deg, var(--danger-color) 0%, #C0392B 100%);
+            color: white;
             padding: 1.5rem;
-            margin: 1.5rem 0;
-            min-height: 400px;
+            text-align: center;
+        }
+
+        .anomaly-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .anomaly-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            padding: 1.5rem;
+            background: var(--background-light);
+        }
+
+        .summary-item {
+            text-align: center;
+        }
+
+        .summary-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .summary-value {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .chart-container {
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .chart-placeholder {
+            width: 100%;
+            height: 300px;
+            background: var(--background-light);
+            border-radius: var(--border-radius-small);
             display: flex;
             align-items: center;
             justify-content: center;
-        }
-
-        .chart-loading {
             color: var(--text-secondary);
-            font-style: italic;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        /* Detail Page */
-        .detail-header {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
-
-        .status-badge {
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .status-badge.critical {
-            background: rgba(231, 76, 60, 0.1);
-            color: var(--danger-color);
-        }
-
-        .detail-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .detail-card {
-            background: white;
-            border: 1px solid var(--border-color);
-            border-radius: var(--border-radius-medium);
-            padding: 1.5rem;
-        }
-
-        .detail-title {
-            font-weight: 600;
+            font-size: 1.1rem;
             margin-bottom: 1rem;
-            color: var(--text-primary);
+            position: relative;
+            overflow: hidden;
         }
 
-        .detail-item {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 0.8rem;
-            padding-bottom: 0.8rem;
-            border-bottom: 1px solid #f0f0f0;
+        #anomalyChart {
+            width: 100%;
+            height: 100%;
+            border-radius: var(--border-radius-small);
         }
 
-        .detail-item:last-child {
-            margin-bottom: 0;
-            padding-bottom: 0;
-            border-bottom: none;
-        }
-
-        .detail-label {
-            font-weight: 600;
-            color: var(--text-secondary);
-        }
-
-        .detail-value {
-            color: var(--text-primary);
-        }
-
-        /* Notes Section */
-        .notes-container {
-            background: white;
-            border: 1px solid var(--border-color);
-            border-radius: var(--border-radius-medium);
+        .notes-section {
             padding: 1.5rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .notes-form {
+            margin-bottom: 1.5rem;
+        }
+
+        .notes-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--border-color);
+            border-radius: var(--border-radius-small);
+            font-size: 1rem;
+            min-height: 80px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .saved-notes {
+            display: grid;
+            gap: 1rem;
         }
 
         .note-item {
-            background: #f8f9fa;
-            border-left: 4px solid var(--primary-color);
+            background: var(--background-light);
             padding: 1rem;
-            margin-bottom: 1rem;
-            border-radius: 0 var(--border-radius-small) var(--border-radius-small) 0;
+            border-radius: var(--border-radius-small);
+            border-left: 3px solid var(--primary-color);
         }
 
-        .note-content {
-            margin-bottom: 0.5rem;
+        .note-text {
             font-style: italic;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
         }
 
         .note-meta {
@@ -603,136 +602,99 @@
             color: var(--text-secondary);
         }
 
-        /* Loading State */
-        .loading {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: var(--text-secondary);
-        }
-
-        .loading::after {
-            content: '';
-            width: 1rem;
-            height: 1rem;
-            border: 2px solid var(--border-color);
-            border-top: 2px solid var(--primary-color);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
         /* Responsive Design */
         @media (max-width: 768px) {
             .app-container {
-                margin: 0;
-                box-shadow: none;
+                min-height: 100vh;
             }
 
             .header {
                 padding: 1rem;
             }
 
-            .app-title {
-                font-size: 1.4rem;
-            }
-
-            .nav-bar {
-                padding: 0.5rem 1rem;
-                flex-wrap: wrap;
-            }
-
-            .nav-btn {
-                padding: 0.5rem 0.8rem;
-                font-size: 0.9rem;
+            .header h1 {
+                font-size: 1.5rem;
             }
 
             .main-content {
                 padding: 1rem;
             }
 
-            .stats-grid {
-                grid-template-columns: 1fr;
-                gap: 1rem;
+            .section-title {
+                font-size: 1.1rem;
             }
 
-            .form-container {
-                padding: 1.5rem;
+            .nav-btn {
+                padding: 0.75rem 0.5rem;
+                font-size: 0.8rem;
             }
 
-            .form-actions {
-                flex-direction: column;
+            .nav-btn .icon {
+                font-size: 1.2rem;
             }
 
-            .btn {
-                width: 100%;
-                justify-content: center;
-            }
-
-            .detail-grid {
+            .suggestions {
                 grid-template-columns: 1fr;
             }
 
-            .alarm-item {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 0.5rem;
-            }
-
-            .notification-card {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 0.5rem;
+            .anomaly-summary {
+                grid-template-columns: 1fr;
             }
         }
 
-        /* Additional animations */
-        @keyframes slideInRight {
-            from {
-                opacity: 0;
-                transform: translateX(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        .notification-card {
-            animation: slideInRight 0.3s ease-out;
-        }
-
-        .notification-card:nth-child(2) { animation-delay: 0.1s; }
-        .notification-card:nth-child(3) { animation-delay: 0.2s; }
-        .notification-card:nth-child(4) { animation-delay: 0.3s; }
-
-        /* Hover effects for interactive elements */
-        .stat-card, .notification-card, .alarm-item {
-            position: relative;
-            overflow: hidden;
-        }
-
-        .stat-card::after, .notification-card::after, .alarm-item::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
+        /* Loading Spinner */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(86, 164, 177, 0.3);
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(86, 164, 177, 0.1) 0%, transparent 70%);
-            transition: all 0.3s ease;
-            transform: translate(-50%, -50%);
-            pointer-events: none;
+            border-top-color: var(--primary-color);
+            animation: spin 1s ease-in-out infinite;
         }
 
-        .stat-card:hover::after, .notification-card:hover::after, .alarm-item:hover::after {
-            width: 300px;
-            height: 300px;
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Custom Scrollbar */
+        .main-content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .main-content::-webkit-scrollbar-track {
+            background: var(--background-light);
+        }
+
+        .main-content::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 3px;
+        }
+
+        .main-content::-webkit-scrollbar-thumb:hover {
+            background: #4A92A0;
+        }
+
+        /* Accessibility */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        /* Focus styles for accessibility */
+        .nav-btn:focus,
+        .btn:focus,
+        .form-input:focus,
+        .form-select:focus {
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
         }
     </style>
 </head>
@@ -740,276 +702,221 @@
     <div class="app-container">
         <!-- Header -->
         <header class="header">
-            <div class="header-content">
-                <h1 class="app-title">
-                    🚨 BI Аларма за Аномалии
-                </h1>
-                <div class="alert-indicator">
-                    Има предупреждения (1)
-                </div>
+            <h1>🔍 BI Аларма за Аномалии</h1>
+            <div class="status-bar">
+                <div id="statusDot" class="status-dot normal"></div>
+                <span id="statusText">Всичко е нормално</span>
             </div>
         </header>
-
-        <!-- Navigation -->
-        <nav class="nav-bar">
-            <button class="nav-btn active" data-screen="dashboard">
-                📊 Dashboard
-            </button>
-            <button class="nav-btn" data-screen="alarms">
-                ⚙️ Аларми
-            </button>
-            <button class="nav-btn" data-screen="details">
-                📈 Детайли
-            </button>
-        </nav>
 
         <!-- Main Content -->
         <main class="main-content">
             <!-- Dashboard Screen -->
             <div id="dashboard" class="screen active">
-                <!-- Stats -->
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-value">2</div>
-                        <div class="stat-label">Активни Аларми</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value">47</div>
-                        <div class="stat-label">Проверени Днес</div>
-                    </div>
-                </div>
-
-                <!-- Notifications -->
-                <section class="notifications">
+                <section class="section">
                     <h2 class="section-title">📢 Последни Известия</h2>
-                    
-                    <div class="notification-card" onclick="showDetails('general-sales')">
-                        <div class="status-indicator status-critical"></div>
-                        <div class="notification-content">
-                            <div class="notification-title">Общи Продажби</div>
-                            <div class="notification-desc">Спад с 18% спрямо вчера</div>
+                    <div class="notifications">
+                        <div class="notification-card critical" onclick="showAnomalyDetails('sales')">
+                            <div class="notification-header">
+                                <div class="notification-title">Общи Продажби</div>
+                                <div class="notification-badge">Критично</div>
+                            </div>
+                            <div class="notification-value">Спад с 18% спрямо вчера</div>
+                            <div class="notification-meta">
+                                <span>Преди 2 часа</span>
+                                <span class="notification-arrow">→</span>
+                            </div>
                         </div>
-                        <div class="notification-time">Преди 2 часа</div>
-                        <div class="notification-arrow">→</div>
-                    </div>
 
-                    <div class="notification-card">
-                        <div class="status-indicator status-warning"></div>
-                        <div class="notification-content">
-                            <div class="notification-title">Средна Стойност Кошница</div>
-                            <div class="notification-desc">Покачване с 12% спрямо миналата седмица</div>
+                        <div class="notification-card warning" onclick="showAnomalyDetails('basket')">
+                            <div class="notification-header">
+                                <div class="notification-title">Средна Стойност Кошница</div>
+                                <div class="notification-badge warning">Предупреждение</div>
+                            </div>
+                            <div class="notification-value warning">Покачване с 12% спрямо миналата седмица</div>
+                            <div class="notification-meta">
+                                <span>Преди 5 часа</span>
+                                <span class="notification-arrow">→</span>
+                            </div>
                         </div>
-                        <div class="notification-time">Преди 5 часа</div>
-                        <div class="notification-arrow">→</div>
-                    </div>
 
-                    <div class="notification-card">
-                        <div class="status-indicator status-normal"></div>
-                        <div class="notification-content">
-                            <div class="notification-title">Брой Клиенти</div>
-                            <div class="notification-desc">В норма - без отклонения</div>
+                        <div class="notification-card">
+                            <div class="notification-header">
+                                <div class="notification-title">Брой Клиенти</div>
+                                <div class="notification-badge" style="background: rgba(74, 222, 128, 0.2); color: #4ADE80;">Нормално</div>
+                            </div>
+                            <div class="notification-value positive">В норма - без отклонения</div>
+                            <div class="notification-meta">
+                                <span>Преди 1 час</span>
+                                <span class="notification-arrow">→</span>
+                            </div>
                         </div>
-                        <div class="notification-time">Преди 1 час</div>
                     </div>
                 </section>
             </div>
 
             <!-- Alarms Screen -->
             <div id="alarms" class="screen">
-                <!-- Create New Alarm -->
-                <section class="form-container">
+                <section class="section">
                     <h2 class="section-title">➕ Създаване на Нова Аларма</h2>
-                    
-                    <form id="alarm-form">
-                        <div class="form-step">
-                            <div class="step-title">
-                                <span class="step-number">1</span>
-                                Избор на Метрика
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Име на Метрика</label>
-                                <div class="radio-group">
-                                    <label class="radio-option">
-                                        <input type="radio" name="metric" value="sales" class="radio-input">
-                                        Общи Продажби
-                                    </label>
-                                    <label class="radio-option">
-                                        <input type="radio" name="metric" value="basket" class="radio-input">
-                                        Средна Стойност Кошница
-                                    </label>
-                                    <label class="radio-option">
-                                        <input type="radio" name="metric" value="margin" class="radio-input">
-                                        Марж %
-                                    </label>
-                                    <label class="radio-option">
-                                        <input type="radio" name="metric" value="customers" class="radio-input">
-                                        Брой Клиенти
-                                    </label>
+                    <div class="setup-container">
+                        <div class="setup-header">
+                            <h3>Настройка на Аларма</h3>
+                        </div>
+                        <div class="setup-steps">
+                            <!-- Step 1: Choose Metric -->
+                            <div id="step1" class="step active">
+                                <div class="form-group">
+                                    <label class="form-label">Изберете метрика за наблюдение:</label>
+                                    <input type="text" id="metricName" class="form-input" placeholder="Въведете име на метрика...">
+                                </div>
+                                <div class="suggestions">
+                                    <div class="suggestion-btn" onclick="selectMetric('Общи Продажби')">📊 Общи Продажби</div>
+                                    <div class="suggestion-btn" onclick="selectMetric('Средна Стойност Кошница')">🛒 Средна Стойност Кошница</div>
+                                    <div class="suggestion-btn" onclick="selectMetric('Брой Клиенти')">👥 Брой Клиенти</div>
+                                    <div class="suggestion-btn" onclick="selectMetric('Време за Зареждане')">⏱️ Време за Зареждане</div>
+                                    <div class="suggestion-btn" onclick="selectMetric('Коефициент на Конверсия')">🎯 Коефициент на Конверсия</div>
+                                    <div class="suggestion-btn" onclick="selectMetric('Нови Регистрации')">📝 Нови Регистрации</div>
+                                </div>
+                                <div class="step-navigation">
+                                    <div></div>
+                                    <button type="button" class="btn btn-primary" onclick="nextStep(2)">Напред</button>
                                 </div>
                             </div>
-                            <div class="form-actions">
-                                <button type="button" class="btn btn-primary" onclick="nextStep()">Напред</button>
-                            </div>
-                        </div>
 
-                        <div class="form-step" style="display: none;">
-                            <div class="step-title">
-                                <span class="step-number">2</span>
-                                Дефиниране на Праг
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Тип Отклонение</label>
-                                <div class="radio-group">
-                                    <label class="radio-option">
-                                        <input type="radio" name="deviation-type" value="percentage" class="radio-input">
-                                        Процентно изменение
-                                    </label>
-                                    <label class="radio-option">
-                                        <input type="radio" name="deviation-type" value="absolute" class="radio-input">
-                                        Абсолютна стойност
-                                    </label>
+                            <!-- Step 2: Set Threshold -->
+                            <div id="step2" class="step">
+                                <div class="form-group">
+                                    <label class="form-label">Тип праг:</label>
+                                    <select id="thresholdType" class="form-select">
+                                        <option value="percentage">Процентна промяна</option>
+                                        <option value="absolute">Абсолютна стойност</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Стойност на прага:</label>
+                                    <input type="number" id="thresholdValue" class="form-input" placeholder="напр. 15" min="1" max="100">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Период за сравнение:</label>
+                                    <select id="comparisonPeriod" class="form-select">
+                                        <option value="yesterday">Спрямо вчера</option>
+                                        <option value="lastWeek">Спрямо миналата седмица</option>
+                                        <option value="lastMonth">Спрямо миналия месец</option>
+                                    </select>
+                                </div>
+                                <div class="step-navigation">
+                                    <button type="button" class="btn btn-secondary" onclick="prevStep(1)">Назад</button>
+                                    <button type="button" class="btn btn-primary" onclick="nextStep(3)">Напред</button>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label class="form-label">Стойност</label>
-                                <input type="number" class="form-input" placeholder="Въведете стойност">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Сравнение спрямо</label>
-                                <div class="radio-group">
-                                    <label class="radio-option">
-                                        <input type="radio" name="comparison" value="yesterday" class="radio-input">
-                                        Вчера
-                                    </label>
-                                    <label class="radio-option">
-                                        <input type="radio" name="comparison" value="last-week" class="radio-input">
-                                        Миналата седмица
-                                    </label>
-                                    <label class="radio-option">
-                                        <input type="radio" name="comparison" value="last-month" class="radio-input">
-                                        Миналия месец
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="form-actions">
-                                <button type="button" class="btn btn-secondary" onclick="prevStep()">Назад</button>
-                                <button type="button" class="btn btn-primary" onclick="nextStep()">Напред</button>
-                            </div>
-                        </div>
 
-                        <div class="form-step" style="display: none;">
-                            <div class="step-title">
-                                <span class="step-number">3</span>
-                                Интеграция
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">API Ключ или Източник</label>
-                                <input type="text" class="form-input" placeholder="Въведете API ключ">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Метод за Известяване</label>
-                                <div class="radio-group">
-                                    <label class="radio-option">
-                                        <input type="radio" name="notification" value="push" class="radio-input">
-                                        Push Известие
-                                    </label>
-                                    <label class="radio-option">
-                                        <input type="radio" name="notification" value="email" class="radio-input">
-                                        Email
-                                    </label>
-                                    <label class="radio-option">
-                                        <input type="radio" name="notification" value="both" class="radio-input">
-                                        И двете
-                                    </label>
+                            <!-- Step 3: API Configuration -->
+                            <div id="step3" class="step">
+                                <div class="form-group">
+                                    <label class="form-label">API Ключ (по избор):</label>
+                                    <input type="password" id="apiKey" class="form-input" placeholder="Въведете API ключ за външна интеграция...">
+                                    <small style="color: var(--text-secondary); margin-top: 0.5rem; display: block;">
+                                        Ако не въведете API ключ, ще използваме симулирани данни
+                                    </small>
+                                </div>
+                                <div class="step-navigation">
+                                    <button type="button" class="btn btn-secondary" onclick="prevStep(2)">Назад</button>
+                                    <button type="button" class="btn btn-success" onclick="createAlert()">🎯 Създай Аларма</button>
                                 </div>
                             </div>
-                            <div class="form-actions">
-                                <button type="button" class="btn btn-secondary" onclick="prevStep()">Назад</button>
-                                <button type="submit" class="btn btn-success">🎯 Създай Аларма</button>
-                            </div>
                         </div>
-                    </form>
+                    </div>
                 </section>
 
-                <!-- Existing Alarms -->
-                <section>
+                <section class="section">
                     <h2 class="section-title">📋 Съществуващи Аларми</h2>
-                    
-                    <div class="alarm-item">
-                        <div class="alarm-info">
-                            <div class="alarm-metric">Общи Продажби</div>
-                            <div class="alarm-condition">Спад > 15% спрямо вчера</div>
+                    <div id="existingAlerts" class="alarm-configs">
+                        <div class="alert-config">
+                            <div class="config-header">
+                                <div class="config-title">Общи Продажби</div>
+                                <button class="alarm-control" onclick="toggleAlert(this)" title="Пауза">⏸️</button>
+                            </div>
+                            <div class="config-description">Спад > 15% спрямо вчера</div>
+                            <div class="config-status active">Активна</div>
                         </div>
-                        <div class="alarm-status active">Активна</div>
-                        <button class="alarm-control" title="Пауза">⏸️</button>
-                    </div>
 
-                    <div class="alarm-item">
-                        <div class="alarm-info">
-                            <div class="alarm-metric">Средна Стойност Кошница</div>
-                            <div class="alarm-condition">Промяна > 10% спрямо миналата седмица</div>
+                        <div class="alert-config">
+                            <div class="config-header">
+                                <div class="config-title">Средна Стойност Кошница</div>
+                                <button class="alarm-control" onclick="toggleAlert(this)" title="Пауза">⏸️</button>
+                            </div>
+                            <div class="config-description">Промяна > 10% спрямо миналата седмица</div>
+                            <div class="config-status active">Активна</div>
                         </div>
-                        <div class="alarm-status active">Активна</div>
-                        <button class="alarm-control" title="Пауза">⏸️</button>
                     </div>
                 </section>
             </div>
 
             <!-- Details Screen -->
             <div id="details" class="screen">
-                <div class="detail-header">
-                    <h1>Общи Продажби - Аномалия</h1>
-                    <div class="status-badge critical">
-                        🔴 Критично
+                <div class="anomaly-details">
+                    <div class="anomaly-header">
+                        <h1 id="anomalyTitle" class="anomaly-title">Общи Продажби - Аномалия</h1>
                     </div>
-                </div>
 
-                <div class="detail-grid">
-                    <div class="detail-card">
-                        <h3 class="detail-title">Детайли на Нарушението</h3>
-                        <div class="detail-item">
-                            <span class="detail-label">Метрика:</span>
-                            <span class="detail-value">Общи Продажби</span>
+                    <div class="anomaly-summary">
+                        <div class="summary-item">
+                            <div class="summary-label">Метрика</div>
+                            <div id="detailMetric" class="summary-value">Общи Продажби</div>
                         </div>
-                        <div class="detail-item">
-                            <span class="detail-label">Праг:</span>
-                            <span class="detail-value">Спад с повече от 15% спрямо вчера</span>
+                        <div class="summary-item">
+                            <div class="summary-label">Праг</div>
+                            <div id="detailThreshold" class="summary-value">Спад с повече от 15% спрямо вчера</div>
                         </div>
-                        <div class="detail-item">
-                            <span class="detail-label">Актуална стойност:</span>
-                            <span class="detail-value">-18%</span>
+                        <div class="summary-item">
+                            <div class="summary-label">Актуална стойност</div>
+                            <div id="detailValue" class="summary-value">-18%</div>
                         </div>
-                        <div class="detail-item">
-                            <span class="detail-label">Време на засичане:</span>
-                            <span class="detail-value">2025-10-02 10:30</span>
+                        <div class="summary-item">
+                            <div class="summary-label">Време на засичане</div>
+                            <div id="detailTime" class="summary-value">2025-10-02 10:30</div>
                         </div>
                     </div>
-                </div>
 
-                <div class="chart-container">
-                    <div class="chart-loading">
-                        ⏳ Зареждане на графика...
-                    </div>
-                    <canvas id="anomaly-chart" width="800" height="400" style="display: none;"></canvas>
-                </div>
-
-                <div class="notes-container">
-                    <h3 class="detail-title">Забележки и Хипотези</h3>
-                    <div class="form-actions" style="margin-bottom: 1rem;">
-                        <button class="btn btn-primary">💾 Запази Забележка</button>
-                    </div>
-                    <div class="note-item">
-                        <div class="note-content">
-                            "Възможно влияние от промоционалната кампания, която приключи вчера"
+                    <div class="chart-container">
+                        <div class="chart-placeholder">
+                            <canvas id="anomalyChart" width="800" height="300"></canvas>
                         </div>
-                        <div class="note-meta">Преди 1 час</div>
                     </div>
-                    <div class="loading">
-                        Зареждане...
+
+                    <div class="notes-section">
+                        <h3 style="margin-bottom: 1rem; color: var(--text-primary);">Забележки и Хипотези</h3>
+                        <div class="notes-form">
+                            <textarea id="notesField" class="notes-input" placeholder="Добавете забележка или хипотеза за аномалията..."></textarea>
+                            <button class="btn btn-primary" style="margin-top: 1rem;" onclick="saveNotes()">💾 Запази Забележка</button>
+                        </div>
+                        <div id="savedNotes" class="saved-notes">
+                            <div class="note-item">
+                                <div class="note-text">"Възможно влияние от промоционалната кампания, която приключи вчера"</div>
+                                <div class="note-meta">Преди 1 час</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </main>
+
+        <!-- Navigation -->
+        <nav class="navigation">
+            <button class="nav-btn active" onclick="showScreen('dashboard')">
+                <div class="icon">📊</div>
+                <div>Табло</div>
+            </button>
+            <button class="nav-btn" onclick="showScreen('alarms')">
+                <div class="icon">⚙️</div>
+                <div>Аларми (<span id="activeAlarms">2</span>)</div>
+            </button>
+            <button class="nav-btn" onclick="showScreen('details')">
+                <div class="icon">🔍</div>
+                <div>Детайли</div>
+            </button>
+        </nav>
     </div>
 
     <script src="app.js"></script>
