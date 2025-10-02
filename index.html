@@ -3,11 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🔔 BI Аларма за Аномалии - Professional Edition</title>
-    
-    <!-- Favicons -->
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔔</text></svg>">
-    
+    <title>BI Система за Анализ на Данни</title>
     <style>
         * {
             margin: 0;
@@ -19,186 +15,128 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
+            color: #333;
         }
 
-        /* Login Screen Styles */
-        #loginScreen {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
             padding: 20px;
         }
 
-        .login-container {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
-            padding: 40px;
-            width: 100%;
-            max-width: 400px;
-            text-align: center;
-        }
-
-        .login-title {
-            color: #333;
-            margin-bottom: 10px;
-            font-size: 28px;
-            font-weight: 600;
-        }
-
-        .login-subtitle {
-            color: #666;
-            margin-bottom: 30px;
-            font-size: 14px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-            text-align: left;
-        }
-
-        .form-control {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #e1e1e1;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
-
-        .form-control:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 8px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: transform 0.2s;
-            width: 100%;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-        }
-
-        .auth-link {
-            color: #667eea;
-            text-decoration: none;
-            margin-top: 15px;
-            display: inline-block;
-        }
-
-        .auth-link:hover {
-            text-decoration: underline;
-        }
-
-        #authError {
-            background: #ff6b6b;
-            color: white;
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 15px;
-            display: none;
-        }
-
-        /* Main App Styles */
-        #mainApp {
-            display: none;
-            min-height: 100vh;
-            background: #f5f7fa;
-        }
-
         .header {
-            background: white;
-            padding: 15px 30px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .header h1 {
-            color: #333;
-            font-size: 24px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
         }
 
         .user-info {
             display: flex;
+            justify-content: space-between;
             align-items: center;
+            margin-bottom: 20px;
             gap: 20px;
         }
 
         .user-details {
-            text-align: right;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
         }
 
         #userEmail {
             font-weight: 600;
-            color: #333;
+            color: #2c3e50;
+            font-size: 16px;
         }
 
         #userRole {
+            background: linear-gradient(45deg, #3498db, #2ecc71);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
             font-size: 12px;
-            color: #666;
-            background: #e3f2fd;
-            padding: 2px 8px;
-            border-radius: 12px;
-            margin-top: 2px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
             display: inline-block;
+            width: fit-content;
         }
 
-        .nav-container {
-            background: white;
-            border-bottom: 1px solid #e1e1e1;
+        .logout-btn {
+            background: linear-gradient(45deg, #1abc9c, #16a085);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
         }
 
-        .nav-tabs {
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(26, 188, 156, 0.4);
+        }
+
+        .navigation {
             display: flex;
-            list-style: none;
-            padding: 0 30px;
+            gap: 10px;
+            flex-wrap: wrap;
         }
 
         .nav-item {
-            margin-right: 30px;
+            list-style: none;
         }
 
         .nav-link {
             display: block;
-            padding: 15px 0;
-            color: #666;
+            padding: 12px 24px;
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
             text-decoration: none;
-            border-bottom: 3px solid transparent;
-            transition: all 0.3s;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-align: center;
         }
 
-        .nav-item.active .nav-link,
-        .nav-link:hover {
-            color: #667eea;
-            border-bottom-color: #667eea;
+        .nav-link:hover, .nav-link.active {
+            background: linear-gradient(45deg, #2ecc71, #27ae60);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(46, 204, 113, 0.4);
         }
 
-        .container {
+        .content {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
             padding: 30px;
-            max-width: 1200px;
-            margin: 0 auto;
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            margin-bottom: 20px;
         }
 
-        .screen {
+        .section {
             display: none;
         }
 
-        .screen.active {
+        .section.active {
             display: block;
         }
 
-        /* Dashboard Styles */
+        h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 24px;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+
         .dashboard-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -206,714 +144,717 @@
             margin-bottom: 30px;
         }
 
-        .card {
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .card h3 {
-            color: #333;
-            margin-bottom: 15px;
-            font-size: 18px;
-        }
-
-        .metric {
-            font-size: 32px;
-            font-weight: bold;
-            color: #667eea;
-        }
-
-        /* Admin Panel Styles */
-        .admin-header {
-            background: #ff6b6b;
+        .metric-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             padding: 20px;
-            border-radius: 10px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .metric-title {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+
+        .metric-value {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .metric-change {
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .form-group {
             margin-bottom: 20px;
         }
 
-        .admin-header h2 {
-            font-size: 24px;
-            margin-bottom: 5px;
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(45deg, #2ecc71, #27ae60);
+        }
+
+        .btn-success:hover {
+            box-shadow: 0 5px 15px rgba(46, 204, 113, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(45deg, #1abc9c, #16a085);
+        }
+
+        .btn-danger:hover {
+            box-shadow: 0 5px 15px rgba(26, 188, 156, 0.4);
         }
 
         .table-container {
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            overflow-x: auto;
+            margin: 20px 0;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
 
         th, td {
-            padding: 12px;
+            padding: 15px;
             text-align: left;
-            border-bottom: 1px solid #e1e1e1;
+            border-bottom: 1px solid #eee;
         }
 
         th {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        tr:hover {
             background: #f8f9fa;
-            font-weight: 600;
-            color: #333;
         }
 
-        .btn-sm {
-            padding: 5px 10px;
-            font-size: 12px;
-            margin-right: 5px;
-        }
-
-        .btn-danger {
-            background: #ff6b6b;
-        }
-
-        /* Data Input Tabs */
-        .data-input-tabs {
-            display: flex;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #e1e1e1;
-        }
-
-        .tab-btn {
-            background: none;
-            border: none;
-            padding: 10px 20px;
-            cursor: pointer;
-            color: #666;
-            border-bottom: 3px solid transparent;
-            transition: all 0.3s;
-        }
-
-        .tab-btn.active,
-        .tab-btn:hover {
-            color: #667eea;
-            border-bottom-color: #667eea;
-        }
-
-        .data-tab-content {
-            display: none;
-            padding: 20px 0;
-        }
-
-        .data-tab-content.active {
-            display: block;
-        }
-
-        .form-group label {
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 5px;
-            display: block;
-        }
-
-        /* Alert Styles */
         .alert {
             padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            border-left: 4px solid;
-        }
-
-        .alert-critical {
-            background: #ffe6e6;
-            border-left-color: #ff6b6b;
-            color: #c92a2a;
+            border-radius: 10px;
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .alert-warning {
-            background: #fff4e6;
-            border-left-color: #ffa94d;
-            color: #d9480f;
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
         }
 
-        .alert-info {
-            background: #e3f2fd;
-            border-left-color: #2196f3;
-            color: #1565c0;
+        .alert-danger {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
         }
 
         .alert-success {
-            background: #e8f5e8;
-            border-left-color: #4caf50;
-            color: #2e7d32;
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
         }
 
-        .alert-time {
-            font-size: 12px;
-            color: #666;
-            float: right;
-        }
-
-        /* Chart Container */
         .chart-container {
             background: white;
             border-radius: 10px;
             padding: 20px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
+            margin: 20px 0;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px dashed #ddd;
+            color: #999;
         }
 
-        /* Responsive */
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            margin: 10px 0;
+        }
+
+        .file-input {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .file-input-label {
+            background: linear-gradient(45deg, #9b59b6, #8e44ad);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .file-input-label:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(155, 89, 182, 0.4);
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border: 1px solid #eee;
+        }
+
+        .card h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-active { background: #2ecc71; }
+        .status-warning { background: #f39c12; }
+        .status-danger { background: #1abc9c; }
+
         @media (max-width: 768px) {
-            .header {
-                flex-direction: column;
-                gap: 10px;
-            }
-
-            .nav-tabs {
-                flex-wrap: wrap;
-                padding: 0 15px;
-            }
-
-            .nav-item {
-                margin-right: 15px;
-            }
-
             .container {
-                padding: 15px;
+                padding: 10px;
             }
-
+            
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+            
             .dashboard-grid {
                 grid-template-columns: 1fr;
             }
-        }
-
-        /* Loading indicator */
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,.3);
-            border-radius: 50%;
-            border-top-color: #fff;
-            animation: spin 1s ease-in-out infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+            
+            .navigation {
+                justify-content: center;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Login Screen -->
-    <div id="loginScreen">
-        <div class="login-container">
-            <h1 class="login-title">🔔 BI Аларма за Аномалии</h1>
-            <p class="login-subtitle">Professional Edition • Secure Access</p>
-            
-            <div id="authError"></div>
-            
-            <!-- Login Form -->
-            <form id="loginForm">
-                <div class="form-group">
-                    <input type="email" id="loginEmail" class="form-control" placeholder="Въведете имейл адрес" required>
-                </div>
-                <div class="form-group">
-                    <input type="password" id="loginPassword" class="form-control" placeholder="Въведете парола" required>
-                </div>
-                <button type="button" onclick="login()" class="btn">Вход</button>
-                <a href="#" id="showRegister" class="auth-link">или Регистрация</a>
-            </form>
-            
-            <!-- Register Form -->
-            <form id="registerForm" style="display: none;">
-                <div class="form-group">
-                    <input type="text" id="registerName" class="form-control" placeholder="Пълно име" required>
-                </div>
-                <div class="form-group">
-                    <input type="email" id="registerEmail" class="form-control" placeholder="Имейл адрес" required>
-                </div>
-                <div class="form-group">
-                    <input type="password" id="registerPassword" class="form-control" placeholder="Парола (минимум 6 символа)" required>
-                </div>
-                <div class="form-group">
-                    <input type="password" id="registerConfirmPassword" class="form-control" placeholder="Потвърди парола" required>
-                </div>
-                <button type="button" onclick="register()" class="btn">Регистрация</button>
-                <a href="#" id="showLogin" class="auth-link">Имам акаунт? Вход</a>
-            </form>
-        </div>
-    </div>
-
-    <!-- Main Application -->
-    <div id="mainApp">
-        <!-- Header -->
-        <header class="header">
-            <h1>🔔 BI Аларма за Аномалии</h1>
+    <div class="container">
+        <div class="header">
             <div class="user-info">
                 <div class="user-details">
-                    <div id="userEmail"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="9de8eef8efddf8e5fcf0edf1f8b3fef2f0">[email&#160;protected]</a></div>
-                    <div id="userRole">Потребител</div>
+                    <div id="userEmail"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="f091949d999eb0939f9d80919e89de939f9d">[email&#160;protected]</a></div>
+                    <div id="userRole">Администратор</div>
                 </div>
-                <button onclick="logout()" class="btn" style="width: auto;">Изход</button>
+                <div style="display: flex; gap: 15px; align-items: center;">
+                    <button class="logout-btn" onclick="logout()">🚪 Изход</button>
+                </div>
             </div>
-        </header>
-
-        <!-- Navigation -->
-        <nav class="nav-container">
-            <ul class="nav-tabs">
-                <li class="nav-item active">
-                    <a href="#" onclick="showScreen('dashboard')" class="nav-link">📊 Dashboard</a>
+            
+            <ul class="navigation">
+                <li class="nav-item">
+                    <a href="#" onclick="showSection('dashboard')" class="nav-link active" id="dashboardNav">📊 Табло</a>
                 </li>
                 <li class="nav-item">
-                    <a href="#" onclick="showScreen('alerts')" class="nav-link">🚨 Аларми</a>
+                    <a href="#" onclick="showSection('data')" class="nav-link" id="dataNav">📋 Данни</a>
                 </li>
                 <li class="nav-item">
-                    <a href="#" onclick="showScreen('analysis')" class="nav-link">📈 Анализ</a>
+                    <a href="#" onclick="showSection('alerts')" class="nav-link" id="alertsNav">🚨 Алерти</a>
                 </li>
                 <li class="nav-item">
-                    <a href="#" onclick="showScreen('settings')" class="nav-link">⚙️ Настройки</a>
+                    <a href="#" onclick="showSection('settings')" class="nav-link" id="settingsNav">⚙️ Настройки</a>
                 </li>
-                <li class="nav-item" id="adminNavBtn" style="display: none;">
-                    <a href="#" onclick="showAdminPanel()" class="nav-link">👑 Админ</a>
+                <li class="nav-item" id="adminNavBtn">
+                    <a href="#" onclick="showSection('admin')" class="nav-link" id="adminNav">👑 Админ</a>
                 </li>
             </ul>
-        </nav>
+        </div>
 
-        <!-- Main Content Container -->
-        <div class="container">
-            <!-- Dashboard Screen -->
-            <div id="dashboard" class="screen active">
-                <h2>📊 Dashboard</h2>
+        <div class="content">
+            <!-- Dashboard Section -->
+            <div id="dashboard" class="section active">
+                <h2>📊 Бизнес Анализи и Наблюдение</h2>
                 
-                <!-- Main Metrics -->
                 <div class="dashboard-grid">
-                    <div class="card">
-                        <h3>🚨 Активни Аларми</h3>
-                        <div class="metric" style="color: #ff6b6b;" id="dashboardActiveAlerts">0</div>
-                        <p id="dashboardAlertsDetails">Няма активни аларми</p>
-                        <small style="color: #666;" id="dashboardLastAlert">-</small>
+                    <div class="metric-card">
+                        <div class="metric-title">Общо записи</div>
+                        <div class="metric-value" id="totalRecords">0</div>
+                        <div class="metric-change">
+                            <span id="recordsChange">↗️ +0%</span>
+                        </div>
                     </div>
-                    <div class="card">
-                        <h3>📊 Анализирани Данни</h3>
-                        <div class="metric" id="dashboardDataCount">0</div>
-                        <p>Записа анализирани общо</p>
-                        <small style="color: #4caf50;" id="dashboardDataTrend">Добавете данни за статистики</small>
+                    
+                    <div class="metric-card">
+                        <div class="metric-title">Активни алерти</div>
+                        <div class="metric-value" id="activeAlerts">0</div>
+                        <div class="metric-change">
+                            <span id="alertsChange">✅ Всичко наред</span>
+                        </div>
                     </div>
-                    <div class="card">
-                        <h3>🎯 Системен Статус</h3>
-                        <div class="metric" style="color: #4CAF50;">✓</div>
-                        <p>Всичко работи нормално</p>
-                        <small style="color: #666;">Готов за анализ</small>
-                    </div>
-                    <div class="card">
-                        <h3>⚡ Последно Сканиране</h3>
-                        <div class="metric" id="dashboardLastScan" style="font-size: 18px;">Никога</div>
-                        <p>Автоматично сканиране</p>
-                        <small style="color: #2196f3;" id="dashboardScanStatus">Стартира при нови данни</small>
-                    </div>
-                </div>
-
-                <!-- Quick Actions -->
-                <div class="card">
-                    <h3>⚡ Бързи Действия</h3>
-                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                        <button onclick="runImmediateScan()" class="btn" style="width: auto;">🔍 Незабавно сканиране</button>
-                        <button onclick="showScreen('alerts')" class="btn" style="width: auto;">🚨 Виж всички аларми</button>
-                        <button onclick="showScreen('settings')" class="btn" style="width: auto;">⚙️ Добави данни</button>
-                        <button onclick="exportDashboardReport()" class="btn" style="width: auto;">📤 Експортирай отчет</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Alerts Screen -->
-            <div id="alerts" class="screen">
-                <h2>🚨 Аларми за Аномалии</h2>
-                
-                <!-- Alert Summary -->
-                <div class="dashboard-grid" style="margin-bottom: 30px;">
-                    <div class="card">
-                        <h3>🔴 Критични</h3>
-                        <div class="metric" style="color: #ff6b6b;" id="criticalAlertsCount">0</div>
-                        <p>Изискват незабавни действия</p>
-                    </div>
-                    <div class="card">
-                        <h3>🟡 Предупреждения</h3>
-                        <div class="metric" style="color: #ffa94d;" id="warningAlertsCount">0</div>
-                        <p>Изискват наблюдение</p>
-                    </div>
-                    <div class="card">
-                        <h3>🟢 Решени</h3>
-                        <div class="metric" style="color: #4caf50;" id="resolvedAlertsCount">0</div>
-                        <p>Общо решени</p>
-                    </div>
-                </div>
-
-                <!-- Live Alerts -->
-                <div class="card">
-                    <h3>🔔 Активни Аларми</h3>
-                    <div id="activeAlerts">
-                        <div class="alert alert-success">
-                            🎉 <strong>Добре дошли в BI системата!</strong><br>
-                            Няма активни аларми. Добавете данни в раздел "Настройки" за да започнете мониторинга.
+                    
+                    <div class="metric-card">
+                        <div class="metric-title">Последна проверка</div>
+                        <div class="metric-value" id="lastCheck">--:--</div>
+                        <div class="metric-change">
+                            <span id="systemStatus">🔄 Автоматично</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Alert History -->
+                <div class="grid-2">
+                    <div class="card">
+                        <h3>📈 Графика на Данните</h3>
+                        <div class="chart-container" id="mainChart">
+                            📊 Графиката ще се покаже тук след добавяне на данни
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>🚨 Последни Алерти</h3>
+                        <div id="recentAlerts">
+                            <p style="color: #999; text-align: center; padding: 20px;">
+                                Няма алерти за показване
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Management Section -->
+            <div id="data" class="section">
+                <h2>📋 Управление на Данни</h2>
+                
+                <div class="grid-2">
+                    <div class="card">
+                        <h3>➕ Добавяне на Данни</h3>
+                        <form id="dataForm">
+                            <div class="form-group">
+                                <label for="dataType">Тип данни:</label>
+                                <select id="dataType" required>
+                                    <option value="">Изберете тип...</option>
+                                    <option value="sales">Продажби</option>
+                                    <option value="traffic">Трафик на сайт</option>
+                                    <option value="production">Производство</option>
+                                    <option value="financial">Финансови</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="dataValue">Стойност:</label>
+                                <input type="number" id="dataValue" step="0.01" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="dataDate">Дата:</label>
+                                <input type="date" id="dataDate" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="dataDescription">Описание (опционално):</label>
+                                <textarea id="dataDescription" rows="3"></textarea>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-success">💾 Запази Данни</button>
+                        </form>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>📁 Импорт от CSV</h3>
+                        <p>Импортирайте данни от CSV файл. Форматът трябва да бъде:</p>
+                        <code>дата,стойност,тип,описание</code>
+                        
+                        <div class="file-input-wrapper">
+                            <input type="file" id="csvFile" class="file-input" accept=".csv" onchange="handleCSVUpload(event)">
+                            <label for="csvFile" class="file-input-label">📤 Изберете CSV файл</label>
+                        </div>
+                        
+                        <div id="csvPreview" style="margin-top: 20px;"></div>
+                        
+                        <button id="importBtn" class="btn btn-success" style="display: none;" onclick="importCSVData()">
+                            ✅ Импортирай Данните
+                        </button>
+                    </div>
+                </div>
+                
                 <div class="card">
-                    <h3>📜 История на Аларми</h3>
-                    <div id="alertHistory">
-                        <table style="width: 100%; margin-top: 15px;">
+                    <h3>📊 Текущи Данни</h3>
+                    <div class="table-container">
+                        <table id="dataTable">
                             <thead>
                                 <tr>
-                                    <th>Време</th>
+                                    <th>Дата</th>
                                     <th>Тип</th>
-                                    <th>Категория</th>
+                                    <th>Стойност</th>
                                     <th>Описание</th>
-                                    <th>Статус</th>
+                                    <th>Действия</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody id="dataTableBody">
                                 <tr>
-                                    <td colspan="5" style="text-align: center; color: #666;">Няма история на аларми</td>
+                                    <td colspan="5" style="text-align: center; color: #999; padding: 40px;">
+                                        Няма данни за показване. Добавете първите си данни!
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
-
-                <!-- Alert Controls -->
-                <div class="card">
-                    <h3>🎛️ Управление на Аларми</h3>
-                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                        <button onclick="markAllAlertsRead()" class="btn" style="width: auto;">✅ Маркирай всички като прочетени</button>
-                        <button onclick="exportAlerts()" class="btn" style="width: auto;">📤 Експортирай аларми</button>
-                        <button onclick="clearOldAlerts()" class="btn" style="width: auto;">🗑️ Изчисти стари аларми</button>
-                        <button onclick="runAnomalyCheck()" class="btn" style="width: auto;">🔍 Провери за аномалии сега</button>
-                    </div>
-                </div>
             </div>
 
-            <!-- Analysis Screen -->
-            <div id="analysis" class="screen">
-                <h2>📈 Анализ на Данни</h2>
+            <!-- Alerts Section -->
+            <div id="alerts" class="section">
+                <h2>🚨 Система за Алерти</h2>
                 
-                <!-- Analysis Summary -->
-                <div class="dashboard-grid" style="margin-bottom: 30px;">
+                <div class="grid-2">
                     <div class="card">
-                        <h3>📊 Общо Данни</h3>
-                        <div class="metric" id="analysisDataCount">0</div>
-                        <p>Записа за анализ</p>
-                    </div>
-                    <div class="card">
-                        <h3>🎯 Откритини Аномалии</h3>
-                        <div class="metric" style="color: #ff6b6b;" id="analysisAnomaliesCount">0</div>
-                        <p>Общо аномалии</p>
-                    </div>
-                    <div class="card">
-                        <h3>⚡ Точност</h3>
-                        <div class="metric" style="color: #4caf50;">N/A</div>
-                        <p>Качество на детекцията</p>
-                    </div>
-                    <div class="card">
-                        <h3>📈 Тенденция</h3>
-                        <div class="metric" style="color: #2196f3;">-</div>
-                        <p>Общ тренд</p>
-                    </div>
-                </div>
-
-                <!-- Charts Section -->
-                <div class="chart-container">
-                    <h3>📊 Графики на Данните</h3>
-                    <div style="margin-bottom: 20px;">
-                        <button class="tab-btn active" onclick="showChart('sales')">💰 Продажби</button>
-                        <button class="tab-btn" onclick="showChart('traffic')">🌐 Трафик</button>
-                        <button class="tab-btn" onclick="showChart('production')">🏭 Производство</button>
-                        <button class="tab-btn" onclick="showChart('combined')">📊 Комбинирани</button>
-                    </div>
-                    
-                    <div id="chartArea">
-                        <div style="height: 300px; background: linear-gradient(45deg, #f8f9fa, #e9ecef); border: 2px dashed #dee2e6; display: flex; align-items: center; justify-content: center; border-radius: 10px;">
-                            <div style="text-align: center;">
-                                <div style="font-size: 48px; margin-bottom: 10px;">📈</div>
-                                <h4>Интерактивни Графики</h4>
-                                <p>Добавете данни в раздел "Настройки"<br>за да видите графики и анализ</p>
+                        <h3>📈 Статистики на Алертите</h3>
+                        <div id="alertStats">
+                            <div style="display: flex; justify-content: space-between; margin: 10px 0;">
+                                <span>Общо алерти:</span>
+                                <strong id="totalAlertsCount">0</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin: 10px 0;">
+                                <span>🔴 Високи:</span>
+                                <strong id="highAlertsCount">0</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin: 10px 0;">
+                                <span>🟡 Средни:</span>
+                                <strong id="mediumAlertsCount">0</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin: 10px 0;">
+                                <span>🟢 Ниски:</span>
+                                <strong id="lowAlertsCount">0</strong>
                             </div>
                         </div>
                     </div>
+                    
+                    <div class="card">
+                        <h3>🔧 Бързи Действия</h3>
+                        <button class="btn" onclick="runAnomalyCheck()">🔍 Провери за Аномалии</button>
+                        <button class="btn btn-success" onclick="markAllAlertsRead()">✅ Маркирай като Прочетени</button>
+                        <button class="btn btn-danger" onclick="clearAllAlerts()">🗑️ Изчисти Всички</button>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h3>📋 Всички Алерти</h3>
+                    <div id="alertsList">
+                        <p style="color: #999; text-align: center; padding: 40px;">
+                            Няма алерти за показване
+                        </p>
+                    </div>
                 </div>
             </div>
 
-            <!-- Settings Screen -->
-            <div id="settings" class="screen">
-                <h2>⚙️ Настройки</h2>
+            <!-- Settings Section -->
+            <div id="settings" class="section">
+                <h2>⚙️ Настройки на Системата</h2>
                 
-                <!-- Data Sources Configuration -->
-                <div class="card">
-                    <h3>📊 Конфигурация на Източниците на Данни</h3>
-                    <div class="form-group">
-                        <label>Активни типове данни:</label>
-                        <div style="margin-top: 10px;">
-                            <label style="display: block; margin-bottom: 5px;">
-                                <input type="checkbox" id="enableSales" checked> 💰 Продажби
-                            </label>
-                            <label style="display: block; margin-bottom: 5px;">
-                                <input type="checkbox" id="enableTraffic" checked> 🌐 Уебсайт трафик
-                            </label>
-                            <label style="display: block; margin-bottom: 5px;">
-                                <input type="checkbox" id="enableProduction" checked> 🏭 Производствени данни
-                            </label>
+                <div class="grid-3">
+                    <div class="card">
+                        <h3>📊 Продажби</h3>
+                        <div class="form-group">
+                            <label>Минимална стойност:</label>
+                            <input type="number" id="salesMinThreshold" value="1000" step="100">
+                        </div>
+                        <div class="form-group">
+                            <label>Максимална стойност:</label>
+                            <input type="number" id="salesMaxThreshold" value="50000" step="100">
+                        </div>
+                        <div class="form-group">
+                            <label>Процент промяна (%): </label>
+                            <input type="number" id="salesPercentChange" value="20" step="5">
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>🌐 Трафик</h3>
+                        <div class="form-group">
+                            <label>Минимални посещения:</label>
+                            <input type="number" id="trafficMinThreshold" value="100" step="50">
+                        </div>
+                        <div class="form-group">
+                            <label>Максимални посещения:</label>
+                            <input type="number" id="trafficMaxThreshold" value="10000" step="100">
+                        </div>
+                        <div class="form-group">
+                            <label>Процент промяна (%):</label>
+                            <input type="number" id="trafficPercentChange" value="30" step="5">
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>🏭 Производство</h3>
+                        <div class="form-group">
+                            <label>Минимална продукция:</label>
+                            <input type="number" id="productionMinThreshold" value="50" step="10">
+                        </div>
+                        <div class="form-group">
+                            <label>Максимална продукция:</label>
+                            <input type="number" id="productionMaxThreshold" value="1000" step="50">
+                        </div>
+                        <div class="form-group">
+                            <label>Процент промяна (%):</label>
+                            <input type="number" id="productionPercentChange" value="25" step="5">
                         </div>
                     </div>
                 </div>
-
-                <!-- Anomaly Detection Settings -->
+                
                 <div class="card">
-                    <h3>🚨 Настройки за Детекция на Аномалии</h3>
-                    
-                    <div class="form-group">
-                        <label>Продажби - Прагове за Аларма:</label>
-                        <div style="display: flex; gap: 10px; margin-top: 5px;">
-                            <input type="number" id="salesMinThreshold" class="form-control" placeholder="Мин. стойност" style="width: 48%;">
-                            <input type="number" id="salesMaxThreshold" class="form-control" placeholder="Макс. стойност" style="width: 48%;">
+                    <h3>💰 Финансови Данни</h3>
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label>Минимална стойност:</label>
+                            <input type="number" id="financialMinThreshold" value="5000" step="500">
                         </div>
-                        <div style="margin-top: 10px;">
-                            <label>Аларма при промяна > </label>
-                            <input type="number" id="salesChangePercent" class="form-control" placeholder="%" style="width: 80px; display: inline-block;">
-                            <span>%</span>
+                        <div class="form-group">
+                            <label>Максимална стойност:</label>
+                            <input type="number" id="financialMaxThreshold" value="100000" step="1000">
                         </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Уебсайт Трафик - Прагове:</label>
-                        <div style="display: flex; gap: 10px; margin-top: 5px;">
-                            <input type="number" id="trafficMinThreshold" class="form-control" placeholder="Мин. посетители" style="width: 48%;">
-                            <input type="number" id="trafficMaxThreshold" class="form-control" placeholder="Макс. посетители" style="width: 48%;">
+                        <div class="form-group">
+                            <label>Процент промяна (%):</label>
+                            <input type="number" id="financialPercentChange" value="15" step="5">
                         </div>
-                        <div style="margin-top: 10px;">
-                            <label>Аларма при промяна > </label>
-                            <input type="number" id="trafficChangePercent" class="form-control" placeholder="%" style="width: 80px; display: inline-block;">
-                            <span>%</span>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Производство - Прагове:</label>
-                        <div style="display: flex; gap: 10px; margin-top: 5px;">
-                            <input type="number" id="productionMinThreshold" class="form-control" placeholder="Мин. единици" style="width: 48%;">
-                            <input type="number" id="productionMaxThreshold" class="form-control" placeholder="Макс. единици" style="width: 48%;">
-                        </div>
-                        <div style="margin-top: 10px;">
-                            <label>Аларма при промяна > </label>
-                            <input type="number" id="productionChangePercent" class="form-control" placeholder="%" style="width: 80px; display: inline-block;">
-                            <span>%</span>
-                        </div>
-                    </div>
-
-                    <button onclick="saveAnomalySettings()" class="btn" style="margin-top: 20px;">💾 Запази Настройки</button>
-                </div>
-
-                <!-- Data Input Section -->
-                <div class="card">
-                    <h3>📝 Въвеждане на Данни</h3>
-                    
-                    <div class="data-input-tabs">
-                        <button class="tab-btn active" onclick="showDataTab('sales')">💰 Продажби</button>
-                        <button class="tab-btn" onclick="showDataTab('traffic')">🌐 Трафик</button>
-                        <button class="tab-btn" onclick="showDataTab('production')">🏭 Производство</button>
-                        <button class="tab-btn" onclick="showDataTab('csv')">📁 CSV Импорт</button>
-                    </div>
-
-                    <!-- Sales Data Input -->
-                    <div id="salesDataInput" class="data-tab-content active">
-                        <h4>💰 Въвеждане на Продажби</h4>
-                        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                            <input type="date" id="salesDate" class="form-control" style="width: 30%;">
-                            <input type="number" id="salesAmount" class="form-control" placeholder="Сума в лв." style="width: 30%;">
-                            <input type="text" id="salesDescription" class="form-control" placeholder="Описание" style="width: 30%;">
-                            <button onclick="addSalesData()" class="btn" style="width: 10%;">➕</button>
-                        </div>
-                    </div>
-
-                    <!-- Traffic Data Input -->
-                    <div id="trafficDataInput" class="data-tab-content">
-                        <h4>🌐 Въвеждане на Трафик</h4>
-                        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                            <input type="date" id="trafficDate" class="form-control" style="width: 25%;">
-                            <input type="number" id="trafficVisitors" class="form-control" placeholder="Посетители" style="width: 20%;">
-                            <input type="number" id="trafficPageViews" class="form-control" placeholder="Прегледи" style="width: 20%;">
-                            <input type="text" id="trafficSource" class="form-control" placeholder="Източник" style="width: 25%;">
-                            <button onclick="addTrafficData()" class="btn" style="width: 10%;">➕</button>
-                        </div>
-                    </div>
-
-                    <!-- Production Data Input -->
-                    <div id="productionDataInput" class="data-tab-content">
-                        <h4>🏭 Въвеждане на Производствени Данни</h4>
-                        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-                            <input type="date" id="productionDate" class="form-control" style="width: 25%;">
-                            <input type="number" id="productionUnits" class="form-control" placeholder="Произведени единици" style="width: 25%;">
-                            <input type="number" id="productionDefects" class="form-control" placeholder="Дефекти" style="width: 20%;">
-                            <input type="text" id="productionLine" class="form-control" placeholder="Линия" style="width: 20%;">
-                            <button onclick="addProductionData()" class="btn" style="width: 10%;">➕</button>
-                        </div>
-                    </div>
-
-                    <!-- CSV Import -->
-                    <div id="csvDataInput" class="data-tab-content">
-                        <h4>📁 CSV Импорт</h4>
-                        <div style="margin-bottom: 15px;">
-                            <label>Избери тип данни:</label>
-                            <select id="csvDataType" class="form-control" style="width: 200px; display: inline-block; margin-left: 10px;">
-                                <option value="sales">💰 Продажби</option>
-                                <option value="traffic">🌐 Трафик</option>
-                                <option value="production">🏭 Производство</option>
+                        <div class="form-group">
+                            <label>Автоматично сканиране:</label>
+                            <select id="autoScanInterval">
+                                <option value="0">Изключено</option>
+                                <option value="300">На всеки 5 минути</option>
+                                <option value="900">На всеки 15 минути</option>
+                                <option value="1800">На всеки 30 минути</option>
+                                <option value="3600" selected>Всеки час</option>
                             </select>
                         </div>
-                        <input type="file" id="csvFileInput" accept=".csv" class="form-control" style="margin-bottom: 10px;">
-                        <button onclick="importCSV()" class="btn">📤 Импортирай CSV</button>
-                        <div id="csvPreview" style="margin-top: 15px; display: none;">
-                            <h5>Преглед на данните:</h5>
-                            <div id="csvPreviewContent"></div>
-                        </div>
                     </div>
+                </div>
+                
+                <div style="text-align: center; margin: 20px 0;">
+                    <button class="btn btn-success" onclick="saveSettings()">💾 Запази Настройките</button>
+                    <button class="btn" onclick="resetSettings()">🔄 Възстанови по подразбиране</button>
                 </div>
             </div>
 
-            <!-- Admin Panel -->
-            <div id="adminPanel" class="screen">
-                <div class="admin-header">
-                    <h2>👑 Администраторски Панел</h2>
-                    <p>Управление на потребители и системни настройки</p>
+            <!-- Admin Section -->
+            <div id="admin" class="section">
+                <h2>👑 Администраторски Панел</h2>
+                
+                <div class="grid-2">
+                    <div class="card">
+                        <h3>📊 Системни Статистики</h3>
+                        <div id="systemStats">
+                            <div style="display: flex; justify-content: space-between; margin: 10px 0;">
+                                <span>Общо потребители:</span>
+                                <strong>1</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin: 10px 0;">
+                                <span>Данни в системата:</span>
+                                <strong id="totalDataEntries">0</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin: 10px 0;">
+                                <span>Използвано място:</span>
+                                <strong id="storageUsed">< 1MB</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin: 10px 0;">
+                                <span>Последен вход:</span>
+                                <strong id="lastLogin">Сега</strong>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>🔧 Системни Операции</h3>
+                        <button class="btn" onclick="exportAllData()">📤 Експорт на данни</button>
+                        <button class="btn btn-success" onclick="backupSystem()">💾 Backup</button>
+                        <button class="btn btn-danger" onclick="clearAllData()">🗑️ Изчисти всички данни</button>
+                        <button class="btn" onclick="viewSystemLogs()">📜 Системни логове</button>
+                    </div>
                 </div>
                 
-                <div class="table-container">
-                    <h3>Управление на потребители</h3>
-                    <table id="usersTable">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Име</th>
-                                <th>Имейл</th>
-                                <th>Роля</th>
-                                <th>Компания</th>
-                                <th>Регистрация</th>
-                                <th>Последен вход</th>
-                                <th>Действия</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Потребителите ще се заредят от JavaScript -->
-                        </tbody>
-                    </table>
+                <div class="card">
+                    <h3>👥 Управление на Потребители</h3>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Потребител</th>
+                                    <th>Роля</th>
+                                    <th>Статус</th>
+                                    <th>Последен вход</th>
+                                    <th>Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="f091949d999eb0939f9d80919e89de939f9d">[email&#160;protected]</a></td>
+                                    <td>
+                                        <span class="status-indicator status-active"></span>
+                                        Администратор
+                                    </td>
+                                    <td>
+                                        <span style="color: #2ecc71; font-weight: 600;">Активен</span>
+                                    </td>
+                                    <td>Сега</td>
+                                    <td>
+                                        <button class="btn" style="padding: 5px 10px; font-size: 12px;">Редактирай</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- JavaScript -->
+    <!-- Include the JavaScript modules -->
     <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="auth.js"></script>
     <script src="data-manager.js"></script>
     <script src="ui-manager.js"></script>
+    
     <script>
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load initial data and update UI
+            updateDashboard();
+            updateDataTable();
+            updateAlertsList();
+            loadSettings();
+            
+            // Set current date as default
+            document.getElementById('dataDate').value = new Date().toISOString().split('T')[0];
+            
+            // Initialize periodic checks if enabled
+            initializeAutoScan();
+        });
+
         // Navigation function
-        function showScreen(screenName) {
-            // Hide all screens
-            const screens = document.querySelectorAll('.screen');
-            screens.forEach(screen => {
-                screen.classList.remove('active');
-            });
+        function showSection(sectionName) {
+            // Hide all sections
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(section => section.classList.remove('active'));
             
-            // Show selected screen
-            const targetScreen = document.getElementById(screenName);
-            if (targetScreen) {
-                targetScreen.classList.add('active');
+            // Remove active class from all nav links
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => link.classList.remove('active'));
+            
+            // Show the selected section
+            document.getElementById(sectionName).classList.add('active');
+            
+            // Add active class to corresponding nav link
+            const activeNavId = sectionName + 'Nav';
+            const activeNav = document.getElementById(activeNavId);
+            if (activeNav) {
+                activeNav.classList.add('active');
             }
             
-            // Update navigation
-            document.querySelectorAll('.nav-item').forEach(item => {
-                item.classList.remove('active');
-            });
-            
-            // Find and activate correct nav item
-            const navLink = document.querySelector(`[onclick*="${screenName}"]`);
-            if (navLink && navLink.closest('.nav-item')) {
-                navLink.closest('.nav-item').classList.add('active');
+            // Update the dashboard when switching to it
+            if (sectionName === 'dashboard') {
+                updateDashboard();
             }
         }
-        
-        // Enhanced showAdminPanel function
-        function showAdminPanel() {
-            showScreen('adminPanel');
+
+        // Data form submission
+        document.getElementById('dataForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const dataType = document.getElementById('dataType').value;
+            const dataValue = parseFloat(document.getElementById('dataValue').value);
+            const dataDate = document.getElementById('dataDate').value;
+            const dataDescription = document.getElementById('dataDescription').value;
+            
+            const dataEntry = {
+                id: Date.now(),
+                type: dataType,
+                value: dataValue,
+                date: dataDate,
+                description: dataDescription,
+                timestamp: new Date().toISOString()
+            };
+            
+            addDataEntry(dataEntry);
+            
+            // Reset form
+            this.reset();
+            document.getElementById('dataDate').value = new Date().toISOString().split('T')[0];
+            
+            // Update UI
+            updateDataTable();
+            updateDashboard();
+            
+            // Run anomaly check
+            runAnomalyCheck();
+            
+            showAlert('Данните са успешно добавени!', 'success');
+        });
+
+        // Utility function to show alerts
+        function showAlert(message, type = 'success') {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.textContent = message;
+            
+            // Insert at the top of the current active section
+            const activeSection = document.querySelector('.section.active');
+            activeSection.insertBefore(alertDiv, activeSection.firstChild);
+            
+            // Remove after 3 seconds
             setTimeout(() => {
-                if (typeof loadUsersTable === 'function') {
-                    loadUsersTable();
-                }
-            }, 100);
+                alertDiv.remove();
+            }, 3000);
         }
-
-        // Load and display users in admin panel
-        function loadUsersTable() {
-            const usersTableBody = document.querySelector('#usersTable tbody');
-            if (!usersTableBody) return;
-            
-            const allUsers = Object.values(users);
-            
-            if (allUsers.length === 0) {
-                usersTableBody.innerHTML = '<tr><td colspan="8" style="text-align: center;">Няма регистрирани потребители</td></tr>';
-                return;
-            }
-            
-            usersTableBody.innerHTML = allUsers.map((user, index) => `
-                <tr>
-                    <td>${index + 1}</td>
-                    <td>${user.name}</td>
-                    <td>${user.email}</td>
-                    <td><span style="color: ${user.role === 'Администратор' ? '#ff6b6b' : '#4caf50'};">${user.role}</span></td>
-                    <td>${user.company || 'N/A'}</td>
-                    <td>${user.createdAt ? formatDate(user.createdAt) : 'N/A'}</td>
-                    <td>${user.lastLogin ? formatDate(user.lastLogin) : 'Никога'}</td>
-                    <td>
-                        <button onclick="deleteUser('${user.email}')" class="btn btn-sm btn-danger">🗑️ Изтрий</button>
-                        <button onclick="toggleUserRole('${user.email}')" class="btn btn-sm" style="background: #ffa94d;">🔄 Смени роля</button>
-                    </td>
-                </tr>
-            `).join('');
-        }
-
-        // Delete user function
-        function deleteUser(userEmail) {
-            if (userEmail === currentUser.email) {
-                showNotification('❌ Не можете да изтриете собствения си акаунт!', 'error');
-                return;
-            }
-            
-            if (confirm(`Сигурни ли сте, че искате да изтриете потребителя ${userEmail}?`)) {
-                delete users[userEmail];
-                localStorage.setItem('biAlarmUsers', JSON.stringify(users));
-                loadUsersTable();
-                showNotification('✅ Потребителят е изтрит успешно!', 'success');
-            }
-        }
-
-        // Toggle user role function
-        function toggleUserRole(userEmail) {
-            if (userEmail === currentUser.email) {
-                showNotification('❌ Не можете да промените собствената си роля!', 'error');
-                return;
-            }
-            
-            const user = users[userEmail];
-            if (!user) return;
-            
-            const newRole = user.role === 'Администратор' ? 'Потребител' : 'Администратор';
-            
-            if (confirm(`Смяна на ролята на ${user.name} от "${user.role}" на "${newRole}"?`)) {
-                user.role = newRole;
-                localStorage.setItem('biAlarmUsers', JSON.stringify(users));
-                loadUsersTable();
-                showNotification(`✅ Ролята на ${user.name} е сменена на ${newRole}!`, 'success');
-            }
-        }
-        
-        console.log('🎉 BI Anomaly Detection System loaded successfully!');
     </script>
 </body>
 </html>
