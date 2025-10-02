@@ -3,7 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BI Аларма за Аномалии - Professional Edition</title>
+    <title>🔔 BI Аларма за Аномалии - Professional Edition</title>
+    
+    <!-- Favicons -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔔</text></svg>">
+    
     <style>
         * {
             margin: 0;
@@ -269,6 +273,92 @@
             background: #ff6b6b;
         }
 
+        /* Data Input Tabs */
+        .data-input-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e1e1e1;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active,
+        .tab-btn:hover {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .data-tab-content {
+            display: none;
+            padding: 20px 0;
+        }
+
+        .data-tab-content.active {
+            display: block;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        /* Alert Styles */
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid;
+        }
+
+        .alert-critical {
+            background: #ffe6e6;
+            border-left-color: #ff6b6b;
+            color: #c92a2a;
+        }
+
+        .alert-warning {
+            background: #fff4e6;
+            border-left-color: #ffa94d;
+            color: #d9480f;
+        }
+
+        .alert-info {
+            background: #e3f2fd;
+            border-left-color: #2196f3;
+            color: #1565c0;
+        }
+
+        .alert-success {
+            background: #e8f5e8;
+            border-left-color: #4caf50;
+            color: #2e7d32;
+        }
+
+        .alert-time {
+            font-size: 12px;
+            color: #666;
+            float: right;
+        }
+
+        /* Chart Container */
+        .chart-container {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .header {
@@ -292,6 +382,21 @@
             .dashboard-grid {
                 grid-template-columns: 1fr;
             }
+        }
+
+        /* Loading indicator */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
     </style>
 </head>
@@ -343,7 +448,7 @@
             <h1>🔔 BI Аларма за Аномалии</h1>
             <div class="user-info">
                 <div class="user-details">
-                    <div id="userEmail"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="126761776052776a737f627e773c717d7f">[email&#160;protected]</a></div>
+                    <div id="userEmail"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="9de8eef8efddf8e5fcf0edf1f8b3fef2f0">[email&#160;protected]</a></div>
                     <div id="userRole">Потребител</div>
                 </div>
                 <button onclick="logout()" class="btn" style="width: auto;">Изход</button>
@@ -376,26 +481,43 @@
             <!-- Dashboard Screen -->
             <div id="dashboard" class="screen active">
                 <h2>📊 Dashboard</h2>
+                
+                <!-- Main Metrics -->
                 <div class="dashboard-grid">
                     <div class="card">
-                        <h3>Активни Аларми</h3>
-                        <div class="metric">12</div>
-                        <p>Критични аномалии</p>
+                        <h3>🚨 Активни Аларми</h3>
+                        <div class="metric" style="color: #ff6b6b;" id="dashboardActiveAlerts">0</div>
+                        <p id="dashboardAlertsDetails">Няма активни аларми</p>
+                        <small style="color: #666;" id="dashboardLastAlert">-</small>
                     </div>
                     <div class="card">
-                        <h3>Анализирани Данни</h3>
-                        <div class="metric">1.2M</div>
-                        <p>Записа днес</p>
+                        <h3>📊 Анализирани Данни</h3>
+                        <div class="metric" id="dashboardDataCount">0</div>
+                        <p>Записа анализирани общо</p>
+                        <small style="color: #4caf50;" id="dashboardDataTrend">Добавете данни за статистики</small>
                     </div>
                     <div class="card">
-                        <h3>Системен Статус</h3>
+                        <h3>🎯 Системен Статус</h3>
                         <div class="metric" style="color: #4CAF50;">✓</div>
-                        <p>Всичко работи</p>
+                        <p>Всичко работи нормално</p>
+                        <small style="color: #666;">Готов за анализ</small>
                     </div>
                     <div class="card">
-                        <h3>Производителност</h3>
-                        <div class="metric">98%</div>
-                        <p>Uptime последните 24ч</p>
+                        <h3>⚡ Последно Сканиране</h3>
+                        <div class="metric" id="dashboardLastScan" style="font-size: 18px;">Никога</div>
+                        <p>Автоматично сканиране</p>
+                        <small style="color: #2196f3;" id="dashboardScanStatus">Стартира при нови данни</small>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="card">
+                    <h3>⚡ Бързи Действия</h3>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button onclick="runImmediateScan()" class="btn" style="width: auto;">🔍 Незабавно сканиране</button>
+                        <button onclick="showScreen('alerts')" class="btn" style="width: auto;">🚨 Виж всички аларми</button>
+                        <button onclick="showScreen('settings')" class="btn" style="width: auto;">⚙️ Добави данни</button>
+                        <button onclick="exportDashboardReport()" class="btn" style="width: auto;">📤 Експортирай отчет</button>
                     </div>
                 </div>
             </div>
@@ -403,27 +525,255 @@
             <!-- Alerts Screen -->
             <div id="alerts" class="screen">
                 <h2>🚨 Аларми за Аномалии</h2>
+                
+                <!-- Alert Summary -->
+                <div class="dashboard-grid" style="margin-bottom: 30px;">
+                    <div class="card">
+                        <h3>🔴 Критични</h3>
+                        <div class="metric" style="color: #ff6b6b;" id="criticalAlertsCount">0</div>
+                        <p>Изискват незабавни действия</p>
+                    </div>
+                    <div class="card">
+                        <h3>🟡 Предупреждения</h3>
+                        <div class="metric" style="color: #ffa94d;" id="warningAlertsCount">0</div>
+                        <p>Изискват наблюдение</p>
+                    </div>
+                    <div class="card">
+                        <h3>🟢 Решени</h3>
+                        <div class="metric" style="color: #4caf50;" id="resolvedAlertsCount">0</div>
+                        <p>Общо решени</p>
+                    </div>
+                </div>
+
+                <!-- Live Alerts -->
                 <div class="card">
-                    <h3>Последни Аларми</h3>
-                    <p>Тук ще се показват детайлите за открити аномалии в данните.</p>
+                    <h3>🔔 Активни Аларми</h3>
+                    <div id="activeAlerts">
+                        <div class="alert alert-success">
+                            🎉 <strong>Добре дошли в BI системата!</strong><br>
+                            Няма активни аларми. Добавете данни в раздел "Настройки" за да започнете мониторинга.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Alert History -->
+                <div class="card">
+                    <h3>📜 История на Аларми</h3>
+                    <div id="alertHistory">
+                        <table style="width: 100%; margin-top: 15px;">
+                            <thead>
+                                <tr>
+                                    <th>Време</th>
+                                    <th>Тип</th>
+                                    <th>Категория</th>
+                                    <th>Описание</th>
+                                    <th>Статус</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td colspan="5" style="text-align: center; color: #666;">Няма история на аларми</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Alert Controls -->
+                <div class="card">
+                    <h3>🎛️ Управление на Аларми</h3>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button onclick="markAllAlertsRead()" class="btn" style="width: auto;">✅ Маркирай всички като прочетени</button>
+                        <button onclick="exportAlerts()" class="btn" style="width: auto;">📤 Експортирай аларми</button>
+                        <button onclick="clearOldAlerts()" class="btn" style="width: auto;">🗑️ Изчисти стари аларми</button>
+                        <button onclick="runAnomalyCheck()" class="btn" style="width: auto;">🔍 Провери за аномалии сега</button>
+                    </div>
                 </div>
             </div>
 
             <!-- Analysis Screen -->
             <div id="analysis" class="screen">
                 <h2>📈 Анализ на Данни</h2>
-                <div class="card">
-                    <h3>Статистически Анализ</h3>
-                    <p>Детайлен анализ на тенденциите и модели в данните.</p>
+                
+                <!-- Analysis Summary -->
+                <div class="dashboard-grid" style="margin-bottom: 30px;">
+                    <div class="card">
+                        <h3>📊 Общо Данни</h3>
+                        <div class="metric" id="analysisDataCount">0</div>
+                        <p>Записа за анализ</p>
+                    </div>
+                    <div class="card">
+                        <h3>🎯 Откритини Аномалии</h3>
+                        <div class="metric" style="color: #ff6b6b;" id="analysisAnomaliesCount">0</div>
+                        <p>Общо аномалии</p>
+                    </div>
+                    <div class="card">
+                        <h3>⚡ Точност</h3>
+                        <div class="metric" style="color: #4caf50;">N/A</div>
+                        <p>Качество на детекцията</p>
+                    </div>
+                    <div class="card">
+                        <h3>📈 Тенденция</h3>
+                        <div class="metric" style="color: #2196f3;">-</div>
+                        <p>Общ тренд</p>
+                    </div>
+                </div>
+
+                <!-- Charts Section -->
+                <div class="chart-container">
+                    <h3>📊 Графики на Данните</h3>
+                    <div style="margin-bottom: 20px;">
+                        <button class="tab-btn active" onclick="showChart('sales')">💰 Продажби</button>
+                        <button class="tab-btn" onclick="showChart('traffic')">🌐 Трафик</button>
+                        <button class="tab-btn" onclick="showChart('production')">🏭 Производство</button>
+                        <button class="tab-btn" onclick="showChart('combined')">📊 Комбинирани</button>
+                    </div>
+                    
+                    <div id="chartArea">
+                        <div style="height: 300px; background: linear-gradient(45deg, #f8f9fa, #e9ecef); border: 2px dashed #dee2e6; display: flex; align-items: center; justify-content: center; border-radius: 10px;">
+                            <div style="text-align: center;">
+                                <div style="font-size: 48px; margin-bottom: 10px;">📈</div>
+                                <h4>Интерактивни Графики</h4>
+                                <p>Добавете данни в раздел "Настройки"<br>за да видите графики и анализ</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <!-- Settings Screen -->
             <div id="settings" class="screen">
                 <h2>⚙️ Настройки</h2>
+                
+                <!-- Data Sources Configuration -->
                 <div class="card">
-                    <h3>Системни Настройки</h3>
-                    <p>Конфигурация на алармите и потребителските предпочитания.</p>
+                    <h3>📊 Конфигурация на Източниците на Данни</h3>
+                    <div class="form-group">
+                        <label>Активни типове данни:</label>
+                        <div style="margin-top: 10px;">
+                            <label style="display: block; margin-bottom: 5px;">
+                                <input type="checkbox" id="enableSales" checked> 💰 Продажби
+                            </label>
+                            <label style="display: block; margin-bottom: 5px;">
+                                <input type="checkbox" id="enableTraffic" checked> 🌐 Уебсайт трафик
+                            </label>
+                            <label style="display: block; margin-bottom: 5px;">
+                                <input type="checkbox" id="enableProduction" checked> 🏭 Производствени данни
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Anomaly Detection Settings -->
+                <div class="card">
+                    <h3>🚨 Настройки за Детекция на Аномалии</h3>
+                    
+                    <div class="form-group">
+                        <label>Продажби - Прагове за Аларма:</label>
+                        <div style="display: flex; gap: 10px; margin-top: 5px;">
+                            <input type="number" id="salesMinThreshold" class="form-control" placeholder="Мин. стойност" style="width: 48%;">
+                            <input type="number" id="salesMaxThreshold" class="form-control" placeholder="Макс. стойност" style="width: 48%;">
+                        </div>
+                        <div style="margin-top: 10px;">
+                            <label>Аларма при промяна > </label>
+                            <input type="number" id="salesChangePercent" class="form-control" placeholder="%" style="width: 80px; display: inline-block;">
+                            <span>%</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Уебсайт Трафик - Прагове:</label>
+                        <div style="display: flex; gap: 10px; margin-top: 5px;">
+                            <input type="number" id="trafficMinThreshold" class="form-control" placeholder="Мин. посетители" style="width: 48%;">
+                            <input type="number" id="trafficMaxThreshold" class="form-control" placeholder="Макс. посетители" style="width: 48%;">
+                        </div>
+                        <div style="margin-top: 10px;">
+                            <label>Аларма при промяна > </label>
+                            <input type="number" id="trafficChangePercent" class="form-control" placeholder="%" style="width: 80px; display: inline-block;">
+                            <span>%</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Производство - Прагове:</label>
+                        <div style="display: flex; gap: 10px; margin-top: 5px;">
+                            <input type="number" id="productionMinThreshold" class="form-control" placeholder="Мин. единици" style="width: 48%;">
+                            <input type="number" id="productionMaxThreshold" class="form-control" placeholder="Макс. единици" style="width: 48%;">
+                        </div>
+                        <div style="margin-top: 10px;">
+                            <label>Аларма при промяна > </label>
+                            <input type="number" id="productionChangePercent" class="form-control" placeholder="%" style="width: 80px; display: inline-block;">
+                            <span>%</span>
+                        </div>
+                    </div>
+
+                    <button onclick="saveAnomalySettings()" class="btn" style="margin-top: 20px;">💾 Запази Настройки</button>
+                </div>
+
+                <!-- Data Input Section -->
+                <div class="card">
+                    <h3>📝 Въвеждане на Данни</h3>
+                    
+                    <div class="data-input-tabs">
+                        <button class="tab-btn active" onclick="showDataTab('sales')">💰 Продажби</button>
+                        <button class="tab-btn" onclick="showDataTab('traffic')">🌐 Трафик</button>
+                        <button class="tab-btn" onclick="showDataTab('production')">🏭 Производство</button>
+                        <button class="tab-btn" onclick="showDataTab('csv')">📁 CSV Импорт</button>
+                    </div>
+
+                    <!-- Sales Data Input -->
+                    <div id="salesDataInput" class="data-tab-content active">
+                        <h4>💰 Въвеждане на Продажби</h4>
+                        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                            <input type="date" id="salesDate" class="form-control" style="width: 30%;">
+                            <input type="number" id="salesAmount" class="form-control" placeholder="Сума в лв." style="width: 30%;">
+                            <input type="text" id="salesDescription" class="form-control" placeholder="Описание" style="width: 30%;">
+                            <button onclick="addSalesData()" class="btn" style="width: 10%;">➕</button>
+                        </div>
+                    </div>
+
+                    <!-- Traffic Data Input -->
+                    <div id="trafficDataInput" class="data-tab-content">
+                        <h4>🌐 Въвеждане на Трафик</h4>
+                        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                            <input type="date" id="trafficDate" class="form-control" style="width: 25%;">
+                            <input type="number" id="trafficVisitors" class="form-control" placeholder="Посетители" style="width: 20%;">
+                            <input type="number" id="trafficPageViews" class="form-control" placeholder="Прегледи" style="width: 20%;">
+                            <input type="text" id="trafficSource" class="form-control" placeholder="Източник" style="width: 25%;">
+                            <button onclick="addTrafficData()" class="btn" style="width: 10%;">➕</button>
+                        </div>
+                    </div>
+
+                    <!-- Production Data Input -->
+                    <div id="productionDataInput" class="data-tab-content">
+                        <h4>🏭 Въвеждане на Производствени Данни</h4>
+                        <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                            <input type="date" id="productionDate" class="form-control" style="width: 25%;">
+                            <input type="number" id="productionUnits" class="form-control" placeholder="Произведени единици" style="width: 25%;">
+                            <input type="number" id="productionDefects" class="form-control" placeholder="Дефекти" style="width: 20%;">
+                            <input type="text" id="productionLine" class="form-control" placeholder="Линия" style="width: 20%;">
+                            <button onclick="addProductionData()" class="btn" style="width: 10%;">➕</button>
+                        </div>
+                    </div>
+
+                    <!-- CSV Import -->
+                    <div id="csvDataInput" class="data-tab-content">
+                        <h4>📁 CSV Импорт</h4>
+                        <div style="margin-bottom: 15px;">
+                            <label>Избери тип данни:</label>
+                            <select id="csvDataType" class="form-control" style="width: 200px; display: inline-block; margin-left: 10px;">
+                                <option value="sales">💰 Продажби</option>
+                                <option value="traffic">🌐 Трафик</option>
+                                <option value="production">🏭 Производство</option>
+                            </select>
+                        </div>
+                        <input type="file" id="csvFileInput" accept=".csv" class="form-control" style="margin-bottom: 10px;">
+                        <button onclick="importCSV()" class="btn">📤 Импортирай CSV</button>
+                        <div id="csvPreview" style="margin-top: 15px; display: none;">
+                            <h5>Преглед на данните:</h5>
+                            <div id="csvPreviewContent"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -460,6 +810,8 @@
 
     <!-- JavaScript -->
     <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="auth.js"></script>
+    <script src="data-manager.js"></script>
+    <script src="ui-manager.js"></script>
     <script>
         // Navigation function
         function showScreen(screenName) {
@@ -487,8 +839,81 @@
             }
         }
         
-        // Enhanced showMainApp function for debugging
-        console.log('Enhanced showMainApp function loaded');
+        // Enhanced showAdminPanel function
+        function showAdminPanel() {
+            showScreen('adminPanel');
+            setTimeout(() => {
+                if (typeof loadUsersTable === 'function') {
+                    loadUsersTable();
+                }
+            }, 100);
+        }
+
+        // Load and display users in admin panel
+        function loadUsersTable() {
+            const usersTableBody = document.querySelector('#usersTable tbody');
+            if (!usersTableBody) return;
+            
+            const allUsers = Object.values(users);
+            
+            if (allUsers.length === 0) {
+                usersTableBody.innerHTML = '<tr><td colspan="8" style="text-align: center;">Няма регистрирани потребители</td></tr>';
+                return;
+            }
+            
+            usersTableBody.innerHTML = allUsers.map((user, index) => `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${user.name}</td>
+                    <td>${user.email}</td>
+                    <td><span style="color: ${user.role === 'Администратор' ? '#ff6b6b' : '#4caf50'};">${user.role}</span></td>
+                    <td>${user.company || 'N/A'}</td>
+                    <td>${user.createdAt ? formatDate(user.createdAt) : 'N/A'}</td>
+                    <td>${user.lastLogin ? formatDate(user.lastLogin) : 'Никога'}</td>
+                    <td>
+                        <button onclick="deleteUser('${user.email}')" class="btn btn-sm btn-danger">🗑️ Изтрий</button>
+                        <button onclick="toggleUserRole('${user.email}')" class="btn btn-sm" style="background: #ffa94d;">🔄 Смени роля</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Delete user function
+        function deleteUser(userEmail) {
+            if (userEmail === currentUser.email) {
+                showNotification('❌ Не можете да изтриете собствения си акаунт!', 'error');
+                return;
+            }
+            
+            if (confirm(`Сигурни ли сте, че искате да изтриете потребителя ${userEmail}?`)) {
+                delete users[userEmail];
+                localStorage.setItem('biAlarmUsers', JSON.stringify(users));
+                loadUsersTable();
+                showNotification('✅ Потребителят е изтрит успешно!', 'success');
+            }
+        }
+
+        // Toggle user role function
+        function toggleUserRole(userEmail) {
+            if (userEmail === currentUser.email) {
+                showNotification('❌ Не можете да промените собствената си роля!', 'error');
+                return;
+            }
+            
+            const user = users[userEmail];
+            if (!user) return;
+            
+            const newRole = user.role === 'Администратор' ? 'Потребител' : 'Администратор';
+            
+            if (confirm(`Смяна на ролята на ${user.name} от "${user.role}" на "${newRole}"?`)) {
+                user.role = newRole;
+                localStorage.setItem('biAlarmUsers', JSON.stringify(users));
+                loadUsersTable();
+                showNotification(`✅ Ролята на ${user.name} е сменена на ${newRole}!`, 'success');
+            }
+        }
+        
+        console.log('🎉 BI Anomaly Detection System loaded successfully!');
     </script>
 </body>
 </html>
