@@ -1,0 +1,1286 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STOIC 11 • BI Manager</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Firebase CDN -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js'
+        import { getFirestore } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js'
+        import { getAuth, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js'
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAT2_bA6Q5I4Al4avmuLAqKavtvjTNimCs",
+            authDomain: "bi-dashboard-b9049.firebaseapp.com",
+            projectId: "bi-dashboard-b9049",
+            storageBucket: "bi-dashboard-b9049.firebasestorage.app",
+            messagingSenderId: "223580142081",
+            appId: "1:223580142081:web:e71a01a77a95414c0a1e00",
+            measurementId: "G-FXX2H4V39W"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        const googleProvider = new GoogleAuthProvider();
+
+        // Make globally available
+        window.auth = auth;
+        window.db = db;
+        window.googleProvider = googleProvider;
+
+        // Auth state listener
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                console.log('User signed in:', user.email);
+                
+                // Check if first user (admin)
+                try {
+                    const users = await getAllUsers();
+                    if (users.length <= 1) {
+                        window.userRole = 'admin'; // First user becomes admin
+                    } else {
+                        window.userRole = 'user'; // Others are regular users
+                    }
+                } catch (error) {
+                    window.userRole = 'user';
+                }
+                
+                showMainApp();
+                updateUserInfo();
+            } else {
+                showLoginScreen();
+            }
+        });
+
+        // Auth functions
+        window.signInWithEmail = async (email, password) => {
+            try {
+                const result = await signInWithEmailAndPassword(auth, email, password);
+                return { success: true, user: result.user };
+            } catch (error) {
+                return { success: false, error: error.message };
+            }
+        };
+
+        window.signInWithGoogle = async () => {
+            try {
+                const result = await signInWithPopup(auth, googleProvider);
+                return { success: true, user: result.user };
+            } catch (error) {
+                return { success: false, error: error.message };
+            }
+        };
+
+        window.signUpWithEmail = async (email, password) => {
+            try {
+                const result = await createUserWithEmailAndPassword(auth, email, password);
+                return { success: true, user: result.user };
+            } catch (error) {
+                return { success: false, error: error.message };
+            }
+        };
+
+        window.signOutUser = async () => {
+            try {
+                await signOut(auth);
+                return { success: true };
+            } catch (error) {
+                return { success: false, error: error.message };
+            }
+        };
+
+        function showLoginScreen() {
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('mainApp').style.display = 'none';
+        }
+
+        function showMainApp() {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'block';
+            setTimeout(updateUIBasedOnRole, 100);
+        }
+
+        async function getAllUsers() {
+            return [auth.currentUser].filter(Boolean);
+        }
+
+        function updateUserInfo() {
+            const user = auth.currentUser;
+            if (user) {
+                document.getElementById('userEmail').textContent = user.email;
+                document.getElementById('userRole').textContent = window.userRole === 'admin' ? 'Администратор' : 'Потребител';
+            }
+        }
+
+        // Make functions globally available
+        window.updateUIBasedOnRole = function() {
+            const isAdmin = window.userRole === 'admin';
+            const permissionNotice = document.getElementById('permissionNotice');
+            
+            if (isAdmin) {
+                permissionNotice.innerHTML = `
+                    <i class="fas fa-crown"></i>
+                    <strong>Администраторски права:</strong> Имате пълен достъп за четене и редактиране на всички данни.
+                `;
+                permissionNotice.className = 'permission-notice admin';
+                
+                // Enable all form inputs for admin
+                document.querySelectorAll('input, textarea, select, button').forEach(element => {
+                    if (!element.closest('#loginScreen')) {
+                        element.disabled = false;
+                        element.style.opacity = '1';
+                        element.style.cursor = 'auto';
+                        element.title = '';
+                    }
+                });
+            } else {
+                permissionNotice.innerHTML = `
+                    <i class="fas fa-info-circle"></i>
+                    <strong>Права на достъп:</strong> Имате права за четене на данни. За редактиране се свържете с администратора.
+                `;
+                permissionNotice.className = 'permission-notice';
+                
+                // Disable form inputs for regular users (read-only access)
+                document.querySelectorAll('input, textarea, select').forEach(element => {
+                    if (!element.closest('#loginScreen')) {
+                        element.disabled = true;
+                        element.style.opacity = '0.6';
+                        element.style.cursor = 'not-allowed';
+                    }
+                });
+                
+                // Disable action buttons for regular users
+                document.querySelectorAll('.btn-generate, .btn').forEach(button => {
+                    if (!button.closest('#loginScreen') && !button.classList.contains('logout-btn')) {
+                        button.disabled = true;
+                        button.style.opacity = '0.6';
+                        button.style.cursor = 'not-allowed';
+                        button.title = 'Нужни са администраторски права';
+                    }
+                });
+            }
+        };
+    </script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0e27;
+            color: #e2e8f0;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* Login Screen Styles */
+        #loginScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0a0e27 0%, #1e293b 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .login-container {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 1rem;
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .login-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #fff;
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .login-subtitle {
+            color: #94a3b8;
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 0.9rem;
+        }
+
+        .login-tabs {
+            display: flex;
+            margin-bottom: 2rem;
+            background: #0f172a;
+            border-radius: 0.5rem;
+            padding: 0.25rem;
+        }
+
+        .login-tab {
+            flex: 1;
+            padding: 0.75rem;
+            background: transparent;
+            border: none;
+            color: #64748b;
+            font-weight: 500;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .login-tab.active {
+            background: #3b82f6;
+            color: #fff;
+        }
+
+        .login-form {
+            display: none;
+        }
+
+        .login-form.active {
+            display: block;
+        }
+
+        .login-input {
+            width: 100%;
+            padding: 0.875rem;
+            background: #0f172a;
+            border: 1px solid #475569;
+            border-radius: 0.5rem;
+            color: #e2e8f0;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        .login-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 0.875rem;
+            background: linear-gradient(135deg, #d4af37 0%, #ffd700 100%);
+            color: #1a1a1a;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 1rem;
+        }
+
+        .login-btn:hover {
+            background: linear-gradient(135deg, #b8860b 0%, #d4af37 100%);
+            transform: translateY(-1px);
+        }
+
+        .login-btn-google {
+            background: #fff;
+            color: #374151;
+            border: 1px solid #d1d5db;
+        }
+
+        .login-btn-google:hover {
+            background: #f9fafb;
+        }
+
+        .login-divider {
+            text-align: center;
+            margin: 1.5rem 0;
+            color: #64748b;
+            position: relative;
+        }
+
+        .login-divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #334155;
+        }
+
+        .login-divider span {
+            background: #1e293b;
+            padding: 0 1rem;
+        }
+
+        /* User Info Styles */
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: #1e293b;
+            border-radius: 0.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid #334155;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #d4af37 0%, #ffd700 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .user-details h3 {
+            color: #fff;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .user-details p {
+            color: #94a3b8;
+            font-size: 0.8rem;
+            margin: 0;
+        }
+
+        .logout-btn {
+            margin-left: auto;
+            padding: 0.5rem 1rem;
+            background: #ef4444;
+            color: #fff;
+            border: none;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: background 0.2s;
+        }
+
+        .logout-btn:hover {
+            background: #dc2626;
+        }
+
+        /* Permission notice */
+        .permission-notice {
+            background: #fef3c7;
+            border: 1px solid #fbbf24;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            color: #92400e;
+            font-size: 0.9rem;
+        }
+
+        .permission-notice.admin {
+            background: #d1fae5;
+            border-color: #10b981;
+            color: #065f46;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem 0;
+        }
+
+        .title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: #94a3b8;
+            margin-bottom: 1rem;
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 1.5rem;
+        }
+
+        .nav-link {
+            color: #64748b;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: #fff;
+        }
+
+        /* Main Sections */
+        .section {
+            background: #1e293b;
+            border-radius: 0.75rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid #334155;
+        }
+
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-title i {
+            color: #3b82f6;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 500;
+            color: #e2e8f0;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            padding: 0.75rem;
+            background: #0f172a;
+            border: 1px solid #475569;
+            border-radius: 0.5rem;
+            color: #e2e8f0;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* Quick Tags */
+        .quick-tags-section {
+            margin: 1.5rem 0;
+        }
+
+        .quick-tags-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #e2e8f0;
+            margin-bottom: 1rem;
+        }
+
+        .quick-tags-categories {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .quick-tags-category {
+            background: #0f172a;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            border: 1px solid #334155;
+        }
+
+        .category-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #94a3b8;
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .quick-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .quick-tag {
+            background: #1e293b;
+            border: 1px solid #475569;
+            border-radius: 0.375rem;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.85rem;
+            color: #cbd5e1;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .quick-tag:hover {
+            background: #3b82f6;
+            border-color: #3b82f6;
+            color: #fff;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: #3b82f6;
+            color: #fff;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background: #2563eb;
+        }
+
+        /* Generate-style Button (Gold theme matching logo) */
+        .btn-generate {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, #d4af37 0%, #ffd700 100%);
+            color: #1a1a1a;
+            border: none;
+            border-radius: 0.75rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+            min-width: 200px;
+        }
+
+        .btn-generate:hover {
+            background: linear-gradient(135deg, #b8860b 0%, #d4af37 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
+        }
+
+        .btn-generate:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #3b82f6;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #94a3b8;
+        }
+
+        /* Results Area */
+        .results-area {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 0.5rem;
+            padding: 2rem;
+            text-align: center;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .results-placeholder {
+            color: #64748b;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .results-subtitle {
+            color: #475569;
+            font-size: 0.9rem;
+        }
+
+        /* Data Table */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #0f172a;
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #334155;
+        }
+
+        .data-table th {
+            background: #1e293b;
+            color: #e2e8f0;
+            font-weight: 600;
+        }
+
+        .data-table td {
+            color: #94a3b8;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.375rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .status-active {
+            background: #10b981;
+            color: #fff;
+        }
+
+        .status-pending {
+            background: #f59e0b;
+            color: #fff;
+        }
+
+        .status-completed {
+            background: #3b82f6;
+            color: #fff;
+        }
+
+        /* Info Messages */
+        .info-messages {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: #0f172a;
+            border-radius: 0.5rem;
+            border: 1px solid #334155;
+        }
+
+        .info-item {
+            color: #64748b;
+            font-size: 0.85rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .info-item:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Tips Section */
+        .tips-section {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .tips-title {
+            color: #e2e8f0;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            font-size: 0.9rem;
+        }
+
+        .tips-content {
+            color: #94a3b8;
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: #64748b;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Login Screen -->
+    <div id="loginScreen" style="display: flex;">
+        <div class="login-container">
+            <div class="login-title">BI Manager</div>
+            <div class="login-subtitle">Вход в защитена система</div>
+            
+            <div class="login-tabs">
+                <button class="login-tab active" onclick="switchTab('signin')">Вход</button>
+                <button class="login-tab" onclick="switchTab('signup')">Регистрация</button>
+            </div>
+
+            <!-- Sign In Form -->
+            <form id="signinForm" class="login-form active" onsubmit="handleSignIn(event)">
+                <input type="email" class="login-input" placeholder="Email адрес" required>
+                <input type="password" class="login-input" placeholder="Парола" required>
+                <button type="submit" class="login-btn">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Вход
+                </button>
+            </form>
+
+            <!-- Sign Up Form -->
+            <form id="signupForm" class="login-form" onsubmit="handleSignUp(event)">
+                <input type="email" class="login-input" placeholder="Email адрес" required>
+                <input type="password" class="login-input" placeholder="Парола" required>
+                <input type="password" class="login-input" placeholder="Потвърди паролата" required>
+                <button type="submit" class="login-btn">
+                    <i class="fas fa-user-plus"></i>
+                    Регистрация
+                </button>
+            </form>
+
+            <div class="login-divider">
+                <span>или</span>
+            </div>
+
+            <button class="login-btn login-btn-google" onclick="handleGoogleSignIn()">
+                <i class="fab fa-google"></i>
+                Вход с Google
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="mainApp" style="display: none;">
+        <div class="container">
+            <!-- User Info -->
+            <div class="user-info">
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="user-details">
+                    <h3 id="userEmail">потребител@email.com</h3>
+                    <p id="userRole">Потребител</p>
+                </div>
+                <button class="logout-btn" onclick="handleSignOut()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Изход
+                </button>
+            </div>
+
+            <!-- Permission Notice -->
+            <div id="permissionNotice" class="permission-notice">
+                <i class="fas fa-info-circle"></i>
+                <strong>Права на достъп:</strong> Имате права за четене на данни. За редактиране се свържете с администратора.
+            </div>
+
+            <!-- Header -->
+            <header class="header">
+                <h1 class="title">STOIC 11</h1>
+                <p class="subtitle">BI • Бизнес Разузнаване</p>
+                <nav class="nav-links">
+                    <a href="#" class="nav-link active" onclick="showSection('dashboard')">Dashboard</a>
+                    <a href="#" class="nav-link" onclick="showSection('hypotheses')">Хипотези</a>
+                    <a href="#" class="nav-link" onclick="showSection('scenarios')">Сценарии</a>
+                    <a href="#" class="nav-link" onclick="showSection('analysis')">Анализи</a>
+                </nav>
+            </header>
+
+            <!-- Dashboard Section -->
+            <section id="dashboard" class="content-section active">
+                <div class="dashboard-grid">
+                    <div class="stat-card">
+                        <div class="stat-value">12</div>
+                        <div class="stat-label">Активни Хипотези</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">5</div>
+                        <div class="stat-label">Сценарии в Процес</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">8</div>
+                        <div class="stat-label">Завършени Анализи</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">94%</div>
+                        <div class="stat-label">Успешност</div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h2 class="section-title">
+                        <i class="fas fa-chart-line"></i>
+                        Преглед на Дейностите
+                    </h2>
+                    
+                    <div class="results-area">
+                        <div class="results-placeholder">STOIC 11 BI Dashboard</div>
+                        <div class="results-subtitle">Изберете секция от навигацията за започване на работа</div>
+                        <button class="btn-generate" style="margin-top: 1.5rem;">
+                            <i class="fas fa-chart-line"></i>
+                            Стартирай Анализ
+                        </button>
+                    </div>
+
+                    <div class="info-messages">
+                        <div class="info-item">• Последна активност: преди 2 часа</div>
+                        <div class="info-item">• Съхранени локално: 12 хипотези</div>
+                        <div class="info-item">• Система: BI Manager Professional Edition</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Hypotheses Section -->
+            <section id="hypotheses" class="content-section">
+                <div class="section">
+                    <h2 class="section-title">
+                        <i class="fas fa-lightbulb"></i>
+                        Създаване на Хипотеза
+                    </h2>
+                    
+                    <form>
+                        <div class="form-group">
+                            <label class="form-label">Опишете вашата бизнес хипотеза</label>
+                            <textarea class="form-textarea" placeholder="Напр. Увеличаване на продажбите с 15% чрез оптимизация на онлайн канали..." rows="4"></textarea>
+                            <div style="text-align: right; color: #64748b; font-size: 0.8rem; margin-top: 0.25rem;">0/500 знака</div>
+                        </div>
+
+                        <div class="quick-tags-section">
+                            <div class="quick-tags-title">Бързи Тагове (Кликнете за добавяне към описанието)</div>
+                            <div class="quick-tags-categories">
+                                <div class="quick-tags-category">
+                                    <div class="category-title">Категории</div>
+                                    <div class="quick-tags">
+                                        <span class="quick-tag">Продажби</span>
+                                        <span class="quick-tag">Маркетинг</span>
+                                        <span class="quick-tag">Операции</span>
+                                        <span class="quick-tag">Финанси</span>
+                                        <span class="quick-tag">HR</span>
+                                        <span class="quick-tag">IT</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="quick-tags-category">
+                                    <div class="category-title">Обхват</div>
+                                    <div class="quick-tags">
+                                        <span class="quick-tag">Краткосрочна</span>
+                                        <span class="quick-tag">Дългосрочна</span>
+                                        <span class="quick-tag">Пилотен проект</span>
+                                        <span class="quick-tag">Пълна имплементация</span>
+                                        <span class="quick-tag">A/B тест</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="quick-tags-category">
+                                    <div class="category-title">Метрики</div>
+                                    <div class="quick-tags">
+                                        <span class="quick-tag">ROI</span>
+                                        <span class="quick-tag">Конверсия</span>
+                                        <span class="quick-tag">Ефективност</span>
+                                        <span class="quick-tag">Клиентска Сатисфакция</span>
+                                        <span class="quick-tag">Време за изпълнение</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="quick-tags-category">
+                                    <div class="category-title">Приоритет</div>
+                                    <div class="quick-tags">
+                                        <span class="quick-tag">Висок</span>
+                                        <span class="quick-tag">Среден</span>
+                                        <span class="quick-tag">Нисък</span>
+                                        <span class="quick-tag">Критичен</span>
+                                        <span class="quick-tag">Експериментален</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Очакван резултат (%)</label>
+                            <input type="number" class="form-input" placeholder="15" min="0" max="100">
+                        </div>
+
+                        <button type="submit" class="btn">
+                            <i class="fas fa-save"></i>
+                            Създай Хипотеза
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Generated Results -->
+                <div class="section">
+                    <h2 class="section-title">
+                        <i class="fas fa-list"></i>
+                        Съхранени Хипотези
+                    </h2>
+                    
+                    <div class="results-area">
+                        <div class="results-placeholder">Готов за създаване</div>
+                        <div class="results-subtitle">Попълнете формата по-горе и създайте първата си BI хипотеза</div>
+                        <button class="btn-generate" style="margin-top: 1.5rem;" onclick="document.querySelector('form textarea').focus()">
+                            <i class="fas fa-lightbulb"></i>
+                            Създай Първа Хипотеза
+                        </button>
+                    </div>
+
+                    <div class="info-messages">
+                        <div class="info-item">Създаването отнема 5-10 секунди</div>
+                        <div class="info-item">Хипотезите се съхраняват локално (макс. 20)</div>
+                        <div class="info-item">Система: STOIC 11 • Професионална версия</div>
+                    </div>
+                </div>
+
+                <div class="tips-section">
+                    <div class="tips-title">
+                        💡 <strong>Съвети:</strong>
+                    </div>
+                    <div class="tips-content">
+                        Използвайте конкретни метрики, времеви рамки и измерими цели за по-добри резултати. Опитайте "Увеличаване продажби | Онлайн канали | 15% ръст | 3 месеца" за по-точни анализи.
+                    </div>
+                </div>
+            </section>
+
+            <!-- Scenarios Section -->
+            <section id="scenarios" class="content-section">
+                <div class="section">
+                    <h2 class="section-title">
+                        <i class="fas fa-sitemap"></i>
+                        Анализ на Сценарии
+                    </h2>
+                    
+                    <form>
+                        <div class="form-group">
+                            <label class="form-label">Опишете бизнес сценария</label>
+                            <textarea class="form-textarea" placeholder="Напр. Отваряне на нов офис в София..." rows="4"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Тип сценарий</label>
+                            <select class="form-select">
+                                <option>Изберете тип</option>
+                                <option>Оптимистичен</option>
+                                <option>Реалистичен</option>
+                                <option>Песимистичен</option>
+                                <option>Стрес тест</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn">
+                            <i class="fas fa-play"></i>
+                            Анализирай Сценарий
+                        </button>
+                    </form>
+                </div>
+
+                <div class="section">
+                    <h2 class="section-title">
+                        <i class="fas fa-chart-bar"></i>
+                        Резултати от Анализ
+                    </h2>
+                    
+                    <div class="results-area">
+                        <div class="results-placeholder">Готов за анализ</div>
+                        <div class="results-subtitle">Създайте сценарий за да видите детайлни прогнози</div>
+                        <button class="btn-generate" style="margin-top: 1.5rem;" onclick="document.querySelector('#scenarios textarea').focus()">
+                            <i class="fas fa-sitemap"></i>
+                            Моделирай Сценарий
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Analysis Section -->
+            <section id="analysis" class="content-section">
+                <div class="section">
+                    <h2 class="section-title">
+                        <i class="fas fa-chart-bar"></i>
+                        Текущи Анализи
+                    </h2>
+                    
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Хипотеза/Сценарий</th>
+                                <th>Тип</th>
+                                <th>Статус</th>
+                                <th>Резултат</th>
+                                <th>Дата</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Увеличаване на продажбите</td>
+                                <td>Хипотеза</td>
+                                <td><span class="status-badge status-active">Активна</span></td>
+                                <td>+12%</td>
+                                <td>2025-09-28</td>
+                            </tr>
+                            <tr>
+                                <td>Нов офис София</td>
+                                <td>Сценарий</td>
+                                <td><span class="status-badge status-pending">В процес</span></td>
+                                <td>-</td>
+                                <td>2025-09-25</td>
+                            </tr>
+                            <tr>
+                                <td>Автоматизация процеси</td>
+                                <td>Хипотеза</td>
+                                <td><span class="status-badge status-completed">Завършен</span></td>
+                                <td>+25%</td>
+                                <td>2025-09-20</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Footer -->
+            <footer class="footer">
+                <p>Създадено от MiniMax Agent</p>
+            </footer>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching for login
+        function switchTab(tab) {
+            const tabs = document.querySelectorAll('.login-tab');
+            const forms = document.querySelectorAll('.login-form');
+            
+            tabs.forEach(t => t.classList.remove('active'));
+            forms.forEach(f => f.classList.remove('active'));
+            
+            document.querySelector(`[onclick="switchTab('${tab}')"]`).classList.add('active');
+            document.getElementById(tab === 'signin' ? 'signinForm' : 'signupForm').classList.add('active');
+        }
+
+        // Auth handlers
+        async function handleSignIn(event) {
+            event.preventDefault();
+            const form = event.target;
+            const email = form.querySelector('input[type="email"]').value;
+            const password = form.querySelector('input[type="password"]').value;
+            
+            const result = await window.signInWithEmail(email, password);
+            if (result.success) {
+                console.log('Успешен вход');
+            } else {
+                alert('Грешка при вход: ' + result.error);
+            }
+        }
+
+        async function handleSignUp(event) {
+            event.preventDefault();
+            const form = event.target;
+            const inputs = form.querySelectorAll('input');
+            const email = inputs[0].value;
+            const password = inputs[1].value;
+            const confirmPassword = inputs[2].value;
+            
+            if (password !== confirmPassword) {
+                alert('Паролите не съвпадат');
+                return;
+            }
+            
+            const result = await window.signUpWithEmail(email, password);
+            if (result.success) {
+                console.log('Успешна регистрация');
+            } else {
+                alert('Грешка при регистрация: ' + result.error);
+            }
+        }
+
+        async function handleGoogleSignIn() {
+            const result = await window.signInWithGoogle();
+            if (result.success) {
+                console.log('Успешен вход с Google');
+            } else {
+                alert('Грешка при вход с Google: ' + result.error);
+            }
+        }
+
+        async function handleSignOut() {
+            const result = await window.signOutUser();
+            if (result.success) {
+                console.log('Успешен изход');
+            } else {
+                alert('Грешка при изход: ' + result.error);
+            }
+        }
+
+        // Navigation
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Update navigation
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            event.target.classList.add('active');
+            
+            // Update UI based on role after showing section
+            setTimeout(() => {
+                if (window.updateUIBasedOnRole) {
+                    window.updateUIBasedOnRole();
+                }
+            }, 100);
+        }
+
+        // Quick Tags functionality
+        document.querySelectorAll('.quick-tag').forEach(tag => {
+            tag.addEventListener('click', function() {
+                const textarea = document.querySelector('textarea');
+                const currentValue = textarea.value;
+                const tagText = this.textContent;
+                
+                if (currentValue) {
+                    textarea.value = currentValue + ' | ' + tagText;
+                } else {
+                    textarea.value = tagText;
+                }
+                
+                // Update character counter
+                const counter = document.querySelector('.form-textarea + div');
+                if (counter) {
+                    counter.textContent = textarea.value.length + '/500 знака';
+                }
+                
+                // Visual feedback
+                this.style.background = '#3b82f6';
+                setTimeout(() => {
+                    this.style.background = '';
+                }, 300);
+            });
+        });
+
+        // Character counter
+        document.querySelectorAll('textarea').forEach(textarea => {
+            textarea.addEventListener('input', function() {
+                const counter = this.nextElementSibling;
+                if (counter && counter.textContent.includes('знака')) {
+                    counter.textContent = this.value.length + '/500 знака';
+                }
+            });
+        });
+
+        // Form submissions
+        document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                if (this.closest('#loginScreen')) return; // Skip login forms
+                
+                e.preventDefault();
+                
+                // Check permissions
+                if (window.userRole !== 'admin') {
+                    alert('Нужни са администраторски права за тази операция');
+                    return;
+                }
+                
+                const submitBtn = this.querySelector('button[type="submit"]');
+                const originalText = submitBtn.innerHTML;
+                
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Обработва...';
+                submitBtn.disabled = true;
+                
+                setTimeout(() => {
+                    alert('Данните са запазени успешно!');
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                    this.reset();
+                    
+                    // Reset character counter
+                    const counter = this.querySelector('.form-textarea + div');
+                    if (counter) {
+                        counter.textContent = '0/500 знака';
+                    }
+                }, 2000);
+            });
+        });
+
+        // Generate buttons
+        document.querySelectorAll('.btn-generate').forEach(button => {
+            button.addEventListener('click', function() {
+                if (window.userRole !== 'admin') {
+                    alert('Нужни са администраторски права за генериране на анализи');
+                    return;
+                }
+                
+                if (this.onclick) return; // Skip if has custom onclick
+                
+                // Default action - focus on relevant textarea
+                const section = this.closest('.content-section');
+                const textarea = section?.querySelector('textarea');
+                if (textarea) {
+                    textarea.focus();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
