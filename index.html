@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BI Организатор на Хипотези и Сценарии</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1><i class="fas fa-chart-line"></i> BI Хипотези & Сценарии</h1>
+                <div class="header-actions">
+                    <button class="btn btn-secondary" onclick="exportData()">
+                        <i class="fas fa-download"></i> Export
+                    </button>
+                    <button class="btn btn-primary" onclick="showNewHypothesisModal()">
+                        <i class="fas fa-plus"></i> Нова Хипотеза
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <nav class="sidebar-nav">
+                    <ul>
+                        <li class="nav-item active" onclick="showSection('dashboard')">
+                            <i class="fas fa-tachometer-alt"></i> Дашборд
+                        </li>
+                        <li class="nav-item" onclick="showSection('hypotheses')">
+                            <i class="fas fa-lightbulb"></i> Хипотези
+                        </li>
+                        <li class="nav-item" onclick="showSection('scenarios')">
+                            <i class="fas fa-sitemap"></i> Сценарии
+                        </li>
+                        <li class="nav-item" onclick="showSection('analytics')">
+                            <i class="fas fa-chart-bar"></i> Анализи
+                        </li>
+                    </ul>
+                </nav>
+            </aside>
+
+            <!-- Content Area -->
+            <div class="content-area">
+                <!-- Dashboard Section -->
+                <section id="dashboard" class="content-section active">
+                    <div class="section-header">
+                        <h2>Дашборд</h2>
+                        <p>Преглед на текущите хипотези и сценарии</p>
+                    </div>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-lightbulb"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="total-hypotheses">0</h3>
+                                <p>Общо Хипотези</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="validated-hypotheses">0</h3>
+                                <p>Валидирани</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-sitemap"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="total-scenarios">0</h3>
+                                <p>Активни Сценарии</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-trending-up"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>87%</h3>
+                                <p>Accuracy Rate</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-grid">
+                        <div class="dashboard-card">
+                            <h3>Последни Хипотези</h3>
+                            <div id="recent-hypotheses" class="recent-list">
+                                <!-- Динамично съдържание -->
+                            </div>
+                        </div>
+                        <div class="dashboard-card">
+                            <h3>Сценарии в Прогрес</h3>
+                            <div id="active-scenarios" class="recent-list">
+                                <!-- Динамично съдържание -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Hypotheses Section -->
+                <section id="hypotheses" class="content-section">
+                    <div class="section-header">
+                        <h2>Управление на Хипотези</h2>
+                        <p>Създавайте и следете бизнес хипотези</p>
+                    </div>
+                    
+                    <div class="filter-bar">
+                        <input type="text" id="hypothesis-search" placeholder="Търсене на хипотези..." class="search-input">
+                        <select id="hypothesis-filter" class="filter-select">
+                            <option value="all">Всички</option>
+                            <option value="draft">Чернова</option>
+                            <option value="testing">В тестване</option>
+                            <option value="validated">Валидирани</option>
+                            <option value="rejected">Отхвърлени</option>
+                        </select>
+                    </div>
+
+                    <div id="hypotheses-list" class="items-list">
+                        <!-- Динамично съдържание -->
+                    </div>
+                </section>
+
+                <!-- Scenarios Section -->
+                <section id="scenarios" class="content-section">
+                    <div class="section-header">
+                        <h2>Сценарно Планиране</h2>
+                        <p>Моделирайте различни бизнес сценарии</p>
+                    </div>
+                    
+                    <div class="scenario-types">
+                        <button class="scenario-type-btn active" onclick="filterScenarios('all')">
+                            <i class="fas fa-list"></i> Всички
+                        </button>
+                        <button class="scenario-type-btn" onclick="filterScenarios('optimistic')">
+                            <i class="fas fa-arrow-up"></i> Оптимистични
+                        </button>
+                        <button class="scenario-type-btn" onclick="filterScenarios('realistic')">
+                            <i class="fas fa-minus"></i> Реалистични
+                        </button>
+                        <button class="scenario-type-btn" onclick="filterScenarios('pessimistic')">
+                            <i class="fas fa-arrow-down"></i> Песимистични
+                        </button>
+                    </div>
+
+                    <div id="scenarios-list" class="scenarios-grid">
+                        <!-- Динамично съдържание -->
+                    </div>
+                </section>
+
+                <!-- Analytics Section -->
+                <section id="analytics" class="content-section">
+                    <div class="section-header">
+                        <h2>Анализи и Insights</h2>
+                        <p>Визуализация на данни и тенденции</p>
+                    </div>
+                    
+                    <div class="analytics-grid">
+                        <div class="chart-card">
+                            <h3>Успех на Хипотези</h3>
+                            <canvas id="hypotheses-chart" height="80"></canvas>
+                        </div>
+                        <div class="chart-card">
+                            <h3>Разпределение на Сценарии</h3>
+                            <canvas id="scenarios-chart" height="80"></canvas>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal for New Hypothesis -->
+    <div id="hypothesis-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Нова Бизнес Хипотеза</h3>
+                <button class="close-btn" onclick="closeModal('hypothesis-modal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="hypothesis-form">
+                <div class="form-group">
+                    <label for="hypothesis-title">Заглавие на Хипотезата</label>
+                    <input type="text" id="hypothesis-title" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="hypothesis-description">Описание</label>
+                    <textarea id="hypothesis-description" rows="3" placeholder="Опишете хипотезата..."></textarea>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="hypothesis-category">Категория</label>
+                        <select id="hypothesis-category">
+                            <option value="marketing">Маркетинг</option>
+                            <option value="sales">Продажби</option>
+                            <option value="product">Продукт</option>
+                            <option value="operations">Операции</option>
+                            <option value="finance">Финанси</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="hypothesis-priority">Приоритет</label>
+                        <select id="hypothesis-priority">
+                            <option value="low">Нисък</option>
+                            <option value="medium">Среден</option>
+                            <option value="high">Висок</option>
+                            <option value="critical">Критичен</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="hypothesis-metrics">KPI Метрики</label>
+                    <input type="text" id="hypothesis-metrics" placeholder="Напр: CTR, Conversion Rate, Revenue">
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="hypothesis-target">Целева Стойност</label>
+                        <input type="number" id="hypothesis-target" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label for="hypothesis-timeframe">Времева Рамка (дни)</label>
+                        <input type="number" id="hypothesis-timeframe" min="1" value="30">
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('hypothesis-modal')">Отказ</button>
+                    <button type="submit" class="btn btn-primary">Създай Хипотеза</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
